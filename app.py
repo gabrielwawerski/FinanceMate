@@ -3,8 +3,9 @@ from util.serializer import *
 
 
 class App:
-    def __init__(self, account):
-        self._accounts = {account.name: account}
+    def __init__(self):
+        self._accounts = {}
+        self.loadData()
         self._run = True
 
     def run(self):
@@ -13,12 +14,12 @@ class App:
         while self._run:
             pass
 
-    def newAccount(self, accountName, balance):
-        account = Account(accountName, balance)
+    def newAccount(self, *args):
+        account = Account(*args)
         self._accounts[account.name] = account
 
     def listAccounts(self):
-        print("Accounts:")
+        print(f"Accounts: {len(self._accounts)}")
         # print("------------------")
         for acc in self._accounts.values():
             print(f"{acc.name}\nBalance: {acc.balance}\nTransactions: {len(acc.transactions)}")
@@ -29,9 +30,5 @@ class App:
 
     def loadData(self):
         self._accounts = Serializer.load(DataType.ACCOUNTS)
-
-
-class SimpleApp:
-    def __new__(cls, name='Gabe W', balance="0"):
-        return App(Account(name, balance))
-
+        if self._accounts is None:
+            self._accounts = {}

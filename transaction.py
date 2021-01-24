@@ -9,7 +9,5 @@ class TransactionType(Enum):
 
 
 class Transaction:
-    def __init__(self, account, amount, trans_type=TransactionType.PAY):
+    def __init__(self, account, amount, trans_type):
         self.timestamp = datetime.now()
-        for k in account.get_info():
-            print(f"{k}: {account.get_info().get(k)}")

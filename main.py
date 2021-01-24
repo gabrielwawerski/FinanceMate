@@ -3,11 +3,12 @@ from account import Account
 from app import *
 
 if __name__ == '__main__':
-    app = SimpleApp(name="Gabe", balance="100")
-    app.newAccount("Mateusz Mateuszecki", "0")
-    # app.newAccount("Kloszard Olbrychski", "12000")
-    app.listAccounts()
-    app.saveData()
-    app.loadData()
+    app = App()
+    # app.newAccount("Mateusz Mateuszecki", "0")
+    # app.newAccount("Modem Internacki", "1342")
+    # app.newAccount("Kloszard Olbrychski", "12032")
+    # app.newAccount("Kazmirz Brodacki", "2436")
+    # app.saveData()
+    # app.loadData()
     app.listAccounts()
 
