@@ -32,3 +32,6 @@ class App:
         self._accounts = Serializer.load(DataType.ACCOUNTS)
         if self._accounts is None:
             self._accounts = {}
+    
+    def quit(self):
+    	self.saveData()
