@@ -15,13 +15,13 @@ class App:
 
     def newAccount(self, accountName, balance):
         account = Account(accountName, balance)
-        self._accounts.update(account.getInfo())
+        self._accounts[account.name] = account
 
     def listAccounts(self):
         print("Accounts:")
         # print("------------------")
         for acc in self._accounts.values():
-            print(f"{acc}")
+            print(f"{acc.name}\nBalance: {acc.balance}\nTransactions: {len(acc.transactions)}")
             print("------------------")
 
     def saveData(self):
