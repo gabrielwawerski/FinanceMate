@@ -1,1 +1,1 @@
-{"Gabe": {"py/object": "account.Account", "_name": "Gabe", "_balance": "100", "_transactions": []}, "name": "Mateusz Mateuszecki", "balance": "0", "transactions": "0"}
+{"Gabe": {"py/object": "account.Account", "name": "Gabe", "balance": "100", "transactions": []}, "name": "Mateusz Mateuszecki", "balance": "0", "transactions": "0"}

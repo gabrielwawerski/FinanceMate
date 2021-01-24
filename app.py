@@ -25,9 +25,6 @@ class App:
             print("------------------")
 
     def saveData(self):
-        self.saveAccountsData()
-
-    def saveAccountsData(self):
         Serializer.save(self._accounts, DataType.ACCOUNTS)
 
     def loadData(self):

@@ -1,3 +1,3 @@
 # Project config file
 
-ACCOUNTS_FIlE = "acc.dat"  # where accounts data is stored
+ACCOUNTS_FIlE = "accounts.json"  # where accounts data is stored
