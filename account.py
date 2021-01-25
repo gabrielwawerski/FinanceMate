@@ -18,7 +18,16 @@ class Account:
 
     @balance.setter
     def balance(self, balance):
-        self._balance = balance
+        if balance < 0:
+        	print(f"Balance can't be lower than 0. value: {balance}")
+        else:
+        	self._balance = balance
+    
+    def subBalance(self, amount):
+    	pass
+    
+    def addBalance(self, amount):
+    	pass
 
     @property
     def transactions(self):
