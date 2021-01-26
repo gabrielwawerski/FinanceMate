@@ -14,8 +14,7 @@ class Serializer:
     def __init__(self, dataType):
     	self.dataType = dataType
 
-    @staticmethod
-    def save(data):
+    def save(self, data):
         dataType = self.dataType
         if dataType is DataType.ACCOUNTS:
             with open(ACCOUNTS_FIlE, "w") as file:
@@ -27,8 +26,7 @@ class Serializer:
             with open(dataType, "w") as file:
                 file.write(data)
 
-    @staticmethod
-    def load():
+    def load(self):
         data = {}
         dataType = self.dataType
         if dataType is DataType.ACCOUNTS:
@@ -45,9 +43,9 @@ class Serializer:
 
 class AccountSerializer(Serializer):
     def __init__(self):
-        super().__init__(DataType.ACCOUNTS)
+        super().__init__(self, DataType.ACCOUNTS)
 
 
 class TransactionSerializer(Serializer):
     def __init__(self):
-        super().__init__(DataType.TRANSACTIONS)
+        super().__init__(self, DataType.TRANSACTIONS)
