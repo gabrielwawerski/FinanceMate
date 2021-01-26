@@ -13,6 +13,7 @@ class MenuOption(Enum):
 class App:
     def __init__(self):
         self._accounts = {}
+        self._transactions = {}
         self.loadData()
         self._run = True
 
@@ -86,12 +87,11 @@ class App:
 
     def saveData(self):
         AccountSerializer.save(self._accounts)
-
         TransactionSerializer.save()
-        Serializer.save(self._accounts, DataType.ACCOUNTS)
 
     def loadData(self):
-        self._accounts = Serializer.load(DataType.ACCOUNTS)
+        TransactionSerializer.load()
+        self._accounts = AccountSerializer.load()
         if self._accounts is None:
             self._accounts = {}
 

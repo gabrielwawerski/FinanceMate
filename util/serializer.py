@@ -11,8 +11,12 @@ class DataType(Enum):
 
 
 class Serializer:
+    def __init__(self, dataType):
+    	self.dataType = dataType
+
     @staticmethod
-    def save(data, dataType):
+    def save(data):
+        dataType = self.dataType
         if dataType is DataType.ACCOUNTS:
             with open(ACCOUNTS_FIlE, "w") as file:
                 file.write(jsonpickle.encode(data))
@@ -24,8 +28,9 @@ class Serializer:
                 file.write(data)
 
     @staticmethod
-    def load(dataType):
+    def load():
         data = {}
+        dataType = self.dataType
         if dataType is DataType.ACCOUNTS:
             with open(ACCOUNTS_FIlE, "r") as file:
                 data = jsonpickle.decode(file.read())
