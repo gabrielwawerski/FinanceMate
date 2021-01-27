@@ -15,8 +15,12 @@ class MenuOption(Enum):
         return returnValue.replace("_", " ")
 
 
+# TODO: accomodate new "settings.json" file!
+# TODO: unique transaction id - taken from new "settings.json" file
 # TODO: remove self._transactions, store all transactions in account objects.
 # TODO: fix displaying account transactions
+# TODO: Account Viewer: class that holds one account at a time. Can perform operations on it (adding transactions etc.)
+#       Helper class so App's methods dealing with accounts doesn't need individual accounts.
 class App:
     def __init__(self):
         self._accounts = {}
@@ -53,6 +57,7 @@ class App:
                 self.quit()
             else:
                 print("else!")
+
             printMenu()
             selection = int(input("> "))
 
@@ -94,7 +99,7 @@ class App:
     def listAccountTransactions(self, account):
         print(f"{account.name} transactions:")
         for t in account.transactions.values():
-            print(f"{t.id.getLast()}. {t.amount}£\n{t.timestamp}")
+            print(f"{t.id.getLast()}. {t.amount}£\n{t.timestamp}")  # bug z id
 
     @staticmethod
     def addBalance(self, account, amount):
