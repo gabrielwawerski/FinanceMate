@@ -5,11 +5,18 @@ from transaction import *
 
 class MenuOption(Enum):
     ADD_TRANSACTION = 1
-    ACCOUNT_OVERVIEW = 2
-    TRANSACTIONS = 3
+    ACCOUNT_INFO = 2
+    ACCOUNT_TRANSACTIONS = 3
+    LIST_ACCOUNTS = 4
     EXIT = 0
 
+    def __str__(self):
+        returnValue = str.capitalize((str(self.name)))
+        return returnValue.replace("_", " ")
 
+
+# TODO: remove self._transactions, store all transactions in account objects.
+# TODO: fix displaying account transactions
 class App:
     def __init__(self):
         self._accounts = {}
@@ -21,37 +28,45 @@ class App:
 
     def run(self):
         def printMenu():
-            print(f"{MenuOption.ADD_TRANSACTION.value}. Add Transaction")
-            print(f"{MenuOption.ACCOUNT_OVERVIEW.value}. Account Info")
-            print(f"{MenuOption.TRANSACTIONS.value}. Account Transactions")
-            print(f"{MenuOption.EXIT.value}. Exit")
+            print("-" * 30)
+            for option in MenuOption:
+                print(f"{option.value}. {str(option)}")
 
+        account = self.getAccount("Gabe")
         print(f"FinanceMate v{self.version}")
         printMenu()
         selection = int(input("> "))
-        account = self.getAccount("Gabe")
-        # while selection != MenuOption.ADD_TRANSACTION.value or selection != MenuOption.ACCOUNT_OVERVIEW.value or selection != MenuOption.EXIT.value:
-        #     print(f"Invalid option ({selection}). Relooping.")
-        #     printMenu()
-        #     selection = int(input())
 
         while self._run:
             if selection == MenuOption.ADD_TRANSACTION.value:
-                print("add transaction!")
                 print("How much did you pay?")
                 amount = int(input("> "))
-                PayTransaction(account, amount)
-            elif selection == MenuOption.ACCOUNT_OVERVIEW.value:
+                self.newTransaction(account, amount, TransactionType.PAY)
+            elif selection == MenuOption.ACCOUNT_INFO.value:
                 self.accountInfo(account)
-            elif selection == MenuOption.TRANSACTIONS.value:
-                self.listTransactions(account)
+            elif selection == MenuOption.ACCOUNT_TRANSACTIONS.value:
+                self.listTransactions()
+            elif selection == MenuOption.LIST_ACCOUNTS.value:
+                self.listAccounts()
             elif selection == MenuOption.EXIT.value:
                 print("exit!")
-                quit()
+                self.quit()
             else:
                 print("else!")
             printMenu()
             selection = int(input("> "))
+
+    def newTransaction(self, account, amount, transactionType):
+        if transactionType is TransactionType.PAY:
+            payTrans = PayTransaction(account, amount)
+            # self._accounts.get(account.name).addTransaction(payTrans)
+            self._transactions[f"{payTrans.getID()}"] = payTrans
+            return payTrans
+        elif transactionType is TransactionType.ADD:
+            addTrans = AddTransaction(account, amount)
+            # self._accounts.get(account.name).addTransaction(addTrans)
+            self._transactions[f'{addTrans.getID()}'] = addTrans
+            return addTrans
 
     def getAccount(self, accountName):
         """doc"""
@@ -65,17 +80,21 @@ class App:
         print("Account info:")
         print(f"{account.name}\nBalance: {account.balance}\nTransactions: {account.transactions}")
 
-    def listTransactions(self, account):
-        print(f"{account.name} transactions:")
-        for x in account.transactions:
-            print(f"Transaction value: {x.amount}")
-
     def listAccounts(self):
         print(f"Accounts: {len(self._accounts)}")
         # print("------------------")
         for acc in self._accounts.values():
             print(f"{acc.name}\nBalance: {acc.balance}\nTransactions: {len(acc.transactions)}")
             print("------------------")
+
+    def listTransactions(self):
+        for t in self._transactions.values():
+            print(f"{t.id.getLast()}. {t.amount}£\nAccount: {t.account.name}\n{t.timestamp}")
+
+    def listAccountTransactions(self, account):
+        print(f"{account.name} transactions:")
+        for t in account.transactions.values():
+            print(f"{t.id.getLast()}. {t.amount}£\n{t.timestamp}")
 
     @staticmethod
     def addBalance(self, account, amount):
@@ -86,14 +105,15 @@ class App:
         account.subBalance(amount)
 
     def saveData(self):
-        AccountSerializer.save(self._accounts)
-        TransactionSerializer.save()
+        AccountSerializer().save(self._accounts)
+        TransactionSerializer().save(self._transactions)
 
     def loadData(self):
-        TransactionSerializer.load()
-        self._accounts = AccountSerializer.load()
+        self._transactions = TransactionSerializer().load()
+        self._accounts = AccountSerializer().load()
         if self._accounts is None:
             self._accounts = {}
 
     def quit(self):
         self.saveData()
+        quit()
