@@ -12,6 +12,7 @@ class TransactionType(Enum):
 class ID:
     def __init__(self):
         self._counter = 0
+        # TODO: load unique id from 'settings.json' here
 
     def __call__(self, *args, **kwargs):
         self._counter += 1
@@ -28,8 +29,8 @@ class Transaction:
         self.amount = amount
         self.transactionType = transactionType
         self.timestamp = datetime.now()
-        self.id = ID()
-        self._id = self.id()
+        self._id = ID()
+        self.id = self._id()
         print(f"{account.name}'s transaction {self.id()}, for {amount}")
 
         if transactionType is TransactionType.PAY:
