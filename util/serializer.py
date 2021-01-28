@@ -11,25 +11,25 @@ class DataType(Enum):
 
 
 class Serializer:
-    def __init__(self, dataType):
-        self.dataType = dataType
+    def __init__(self, data_type):
+        self.data_type = data_type
 
     def save(self, data):
-        dataType = self.dataType
-        if dataType is DataType.ACCOUNTS:
+        data_type = self.data_type
+        if data_type is DataType.ACCOUNTS:
             with open(ACCOUNTS_FIlE, "w") as file:
                 file.write(jsonpickle.encode(data))
-        elif dataType is DataType.TRANSACTIONS:
+        elif data_type is DataType.TRANSACTIONS:
             with open(TRANSACTIONS_FILE, "w") as file:
                 file.write(jsonpickle.encode(data))
 
     def load(self):
         data = {}
-        dataType = self.dataType
-        if dataType is DataType.ACCOUNTS:
+        data_type = self.data_type
+        if data_type is DataType.ACCOUNTS:
             with open(ACCOUNTS_FIlE, "r") as file:
                 data = jsonpickle.decode(file.read())
-        elif dataType is DataType.TRANSACTIONS:
+        elif data_type is DataType.TRANSACTIONS:
             with open(TRANSACTIONS_FILE, "r") as file:
                 data = jsonpickle.decode(file.read())
         return data

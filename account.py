@@ -2,9 +2,9 @@ from util.config import MAX_BALANCE
 
 
 class Account:
-    def __init__(self, name='Client', accountBalance=0):
+    def __init__(self, name='Client', account_balance=0):
         self._name = name
-        self._balance = accountBalance
+        self._balance = account_balance
         print(type(self._balance))
         self._transactions = {}
 
@@ -50,7 +50,7 @@ class Account:
         self._transactions = transactions
 
     def addTransaction(self, transaction):
-        self._transactions.append(transaction)
+        self._transactions[f'{transaction.get_id()}'] = transaction
 
     def getInfo(self):
         return dict(name=self._name, balance=self._balance, transactions=str(self._transactions.__len__()))
