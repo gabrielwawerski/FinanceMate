@@ -2,9 +2,9 @@ from util.config import MAX_BALANCE
 
 
 class Account:
-    def __init__(self, name='Client', accountBalance=0):
+    def __init__(self, name='Client', account_balance=0):
         self._name = name
-        self._balance = accountBalance
+        self._balance = account_balance
         print(type(self._balance))
         self._transactions = {}
 
@@ -27,14 +27,14 @@ class Account:
         else:
             self._balance = balance
 
-    def addBalance(self, amount):
+    def add_balance(self, amount):
         balance = int(self._balance)
         if balance + amount > MAX_BALANCE:
             raise ValueError(f"Balance can't be higher than {MAX_BALANCE}. Balance after: {balance + amount}")
         else:
             self._balance += amount
 
-    def subBalance(self, amount):
+    def sub_balance(self, amount):
         balance = int(self._balance)
         if balance - amount < 0:
             raise ValueError(f"Balance can't be below zero. Balance: {balance}")
@@ -49,8 +49,8 @@ class Account:
     def transactions(self, transactions):
         self._transactions = transactions
 
-    def addTransaction(self, transaction):
-        self._transactions.append(transaction)
+    def add_transaction(self, transaction):
+        self._transactions[f'{transaction.get_id()}'] = transaction
 
-    def getInfo(self):
+    def get_info(self):
         return dict(name=self._name, balance=self._balance, transactions=str(self._transactions.__len__()))

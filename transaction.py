@@ -9,43 +9,39 @@ class TransactionType(Enum):
     ADD = 2
 
 
-class ID:
+class IDGenerator:
     def __init__(self):
-        self._counter = 0
+        self._id = 0
         # TODO: load unique id from 'settings.json' here
 
     def __call__(self, *args, **kwargs):
-        self._counter += 1
-        return self._counter
-
-    def getLast(self):
-        return self._counter
+        self._id += 1
+        return self._id
 
 
 class Transaction:
-
-    def __init__(self, account, amount, transactionType):
-        self.account = account
+    def __init__(self, account, amount, transaction_type):
+        self.account_name = account.name
         self.amount = amount
-        self.transactionType = transactionType
+        self.transaction_type = transaction_type
         self.timestamp = datetime.now()
-        self._idGen = ID()
-        self.id = self._idGen
-        print(f"{account.name}'s transaction {self.id()}, for {amount}")
+        self._id_generator = IDGenerator()
+        self.id = self._id_generator()
+        print(f"{self.account_name}'s transaction {self.id}, for {amount}")
 
-        if transactionType is TransactionType.PAY:
-            account.subBalance(amount)
-        elif transactionType is TransactionType.ADD:
-            account.addBalance(amount)
+        if transaction_type is TransactionType.PAY:
+            account.sub_balance(amount)
+        elif transaction_type is TransactionType.ADD:
+            account.add_balance(amount)
 
         print(f"Current balance: {account.balance}")
-        account.addTransaction(self)
+        account.add_transaction(self)
 
-    def getID(self):
-        return self._id
+    def get_id(self):
+        return self.id
 
-    def getInfo(self):
-        print(f"{self.id.getLast()}: {self.transactionType}:\nAccount: {self.account}\nAmount:{self.amount}\n{self.timestamp}")
+    def get_info(self):
+        print(f"{self.id}: {self.transaction_type}:\nAccount: {self.account_name}\nAmount:{self.amount}\n{self.timestamp}")
 
 
 class PayTransaction(Transaction):
