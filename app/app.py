@@ -20,6 +20,7 @@ class MenuOption(Enum):
 # TODO: remove self._transactions, store all transactions in account objects.
 # TODO: fix displaying account transactions
 # TODO: Account Viewer: class that holds one account at a time. Can perform operations on it (adding transactions etc.)
+# TODO: move methods operating on accounts from here? to account viewer? 
 #       Helper class so App's methods dealing with accounts doesn't need individual accounts.
 class App:
     def __init__(self):
