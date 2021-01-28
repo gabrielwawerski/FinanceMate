@@ -29,8 +29,8 @@ class Transaction:
         self.amount = amount
         self.transactionType = transactionType
         self.timestamp = datetime.now()
-        self._id = ID()
-        self.id = self._id()
+        self._idGen = ID()
+        self.id = self._idGen
         print(f"{account.name}'s transaction {self.id()}, for {amount}")
 
         if transactionType is TransactionType.PAY:

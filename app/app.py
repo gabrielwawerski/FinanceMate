@@ -20,8 +20,8 @@ class MenuOption(Enum):
 # TODO: remove self._transactions, store all transactions in account objects.
 # TODO: fix displaying account transactions
 # TODO: Account Viewer: class that holds one account at a time. Can perform operations on it (adding transactions etc.)
+# Helper class so App's methods dealing with accounts doesn't need individual accounts.
 # TODO: move methods operating on accounts from here? to account viewer? 
-#       Helper class so App's methods dealing with accounts doesn't need individual accounts.
 class App:
     def __init__(self):
         self._accounts = {}
@@ -43,14 +43,14 @@ class App:
         selection = int(input("> "))
 
         while self._run:
-            if selection == MenuOption.ADD_TRANSACTION.value:
+            if selection is MenuOption.ADD_TRANSACTION.value:
                 print("How much did you pay?")
                 amount = int(input("> "))
                 self.newTransaction(account, amount, TransactionType.PAY)
             elif selection == MenuOption.ACCOUNT_INFO.value:
                 self.accountInfo(account)
             elif selection == MenuOption.ACCOUNT_TRANSACTIONS.value:
-                self.listTransactions()
+                self.listAccountTransactions(account)
             elif selection == MenuOption.LIST_ACCOUNTS.value:
                 self.listAccounts()
             elif selection == MenuOption.EXIT.value:
@@ -65,12 +65,12 @@ class App:
     def newTransaction(self, account, amount, transactionType):
         if transactionType is TransactionType.PAY:
             payTrans = PayTransaction(account, amount)
-            # self._accounts.get(account.name).addTransaction(payTrans)
+            self._accounts.get(account.name).addTransaction(payTrans)
             self._transactions[f"{payTrans.getID()}"] = payTrans
             return payTrans
         elif transactionType is TransactionType.ADD:
             addTrans = AddTransaction(account, amount)
-            # self._accounts.get(account.name).addTransaction(addTrans)
+            self._accounts.get(account.name).addTransaction(addTrans)
             self._transactions[f'{addTrans.getID()}'] = addTrans
             return addTrans
 
@@ -95,11 +95,11 @@ class App:
 
     def listTransactions(self):
         for t in self._transactions.values():
-            print(f"{t.id.getLast()}. {t.amount}£\nAccount: {t.account.name}\n{t.timestamp}")
+            print(f"{self._transactions[t]}. {t.amount}£\nAccount: {t.account.name}\n{t.timestamp}")
 
     def listAccountTransactions(self, account):
         print(f"{account.name} transactions:")
-        for t in account.transactions.values():
+        for t in account.transactions:
             print(f"{t.id.getLast()}. {t.amount}£\n{t.timestamp}")  # bug z id
 
     @staticmethod

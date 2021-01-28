@@ -6,7 +6,7 @@ class Account:
         self._name = name
         self._balance = accountBalance
         print(type(self._balance))
-        self._transactions = list()
+        self._transactions = {}
 
     @property
     def name(self):
