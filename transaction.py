@@ -1,9 +1,6 @@
 from datetime import datetime
-from enum import Enum
-from account import *
 from util.serializer import *
 from util.settings import *
-from util.util import *
 
 
 class TransactionType(Enum):
@@ -30,14 +27,14 @@ class Transaction:
         self.timestamp = datetime.now()
         self._id = ID()
         self.id = self._id()
-        print(f"{self.account_name}'s Transaction no. {self.id} - for {amount}{get_currency()}")
+        print(f"{self.account_name}'s Transaction no. {self.id} - for {amount}{Util.get_currency()}")
 
         if transaction_type is TransactionType.PAY:
             account.sub_balance(amount)
         elif transaction_type is TransactionType.ADD:
             account.add_balance(amount)
 
-        print(f"Current balance: {account.balance}{get_currency()}")
+        print(f"Current balance: {account.balance}{Util.get_currency()}")
         account.add_transaction(self)
 
     def get_id(self):
@@ -45,7 +42,7 @@ class Transaction:
 
     def get_info(self):
         print(f"{self.id}: {self.transaction_type}")
-        print(f"Account: {self.account_name}\nAmount:{self.amount}{get_currency()}\n{self.timestamp}")
+        print(f"Account: {self.account_name}\nAmount:{self.amount}{Util.get_currency()}\n{self.timestamp}")
 
 
 class PayTransaction(Transaction):

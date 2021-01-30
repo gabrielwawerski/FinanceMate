@@ -28,8 +28,8 @@ class Account:
 
     def add_balance(self, amount):
         balance = int(self._balance)
-        if balance + amount > get_max_balance():
-            raise ValueError(f"Balance can't be higher than {get_max_balance()}. Balance after: {balance + amount}")
+        if balance + amount > Util.get_max_balance():
+            raise ValueError(f"Balance can't be higher than {Util.get_max_balance()}. Balance after: {balance + amount}")
         else:
             self._balance += amount
 
@@ -53,7 +53,3 @@ class Account:
 
     def get_info(self):
         return dict(name=self._name, balance=self._balance, transactions=str(self._transactions.__len__()))
-
-
-def get_max_balance():
-    return app_settings.get_setting("max_balance")

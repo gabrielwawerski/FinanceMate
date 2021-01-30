@@ -23,20 +23,20 @@ class Serializer:
 
 class SimpleSerializer(Serializer):
     def save(self, data):
+        print(f"Saving {self.data_type}...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(self.file_name, "w") as file:
-                    print(f"{self.data_type} saved.")
+                    print("Done.")
                     file.write(jsonpickle.encode(data))
 
     def load(self):
-        print(f"Load {self.data_type}...", end=" ")
+        print(f"Loading {self.data_type}...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(self.file_name, "r") as file:
                     print("Done.")
-                    data = jsonpickle.decode(file.read())
-        return data
+                    return jsonpickle.decode(file.read())
 
 
 class SettingsSerializer(SimpleSerializer):
