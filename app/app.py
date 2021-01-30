@@ -77,8 +77,7 @@ class App:
                     acc_balance = 0
                 else:
                     acc_balance = int(acc_balance)
-
-                self.new_account(acc_name, acc_balance)
+                    self.new_account(acc_name, acc_balance)
             elif selection is MenuOption.EXIT.value:
                 print("quit!")
                 self.quit()
@@ -104,8 +103,8 @@ class App:
         """doc"""
         return self._accounts.get(accountName)
 
-    def new_account(self, *args):
-        account = Account(*args)
+    def new_account(self, name, balance):
+        account = Account(name, balance)
         self._accounts[account.name] = account
         print(f"Account: {account.name}, Balance: {account.balance}{Util.get_currency()}\nAccount Created Succesfully.")
 
