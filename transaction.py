@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 from account import *
 from util.serializer import *
+from util.settings import *
 
 
 class TransactionType(Enum):
@@ -9,14 +10,15 @@ class TransactionType(Enum):
     ADD = 2
 
 
-class IDGenerator:
+class ID:
     def __init__(self):
-        self._id = 0
+        self.id = app_settings.get_setting("uid")
         # TODO: load unique id from 'settings.json' here
 
     def __call__(self, *args, **kwargs):
-        self._id += 1
-        return self._id
+        self.id += 1
+        app_settings.set_setting("uid", self.id)
+        return self.id
 
 
 class Transaction:
@@ -25,23 +27,23 @@ class Transaction:
         self.amount = amount
         self.transaction_type = transaction_type
         self.timestamp = datetime.now()
-        self._id_generator = IDGenerator()
-        self.id = self._id_generator()
-        print(f"{self.account_name}'s transaction {self.id}, for {amount}")
+        self._id = ID()
+        self.id = self._id()
+        print(f"{self.account_name}'s Transaction no. {self.id} - for {amount}{CURRENCY}")
 
         if transaction_type is TransactionType.PAY:
             account.sub_balance(amount)
         elif transaction_type is TransactionType.ADD:
             account.add_balance(amount)
 
-        print(f"Current balance: {account.balance}")
+        print(f"Current balance: {account.balance}{CURRENCY}")
         account.add_transaction(self)
 
     def get_id(self):
         return self.id
 
     def get_info(self):
-        print(f"{self.id}: {self.transaction_type}:\nAccount: {self.account_name}\nAmount:{self.amount}\n{self.timestamp}")
+        print(f"{self.id}: {self.transaction_type}:\nAccount: {self.account_name}\nAmount:{self.amount}{CURRENCY}\n{self.timestamp}")
 
 
 class PayTransaction(Transaction):
