@@ -31,3 +31,7 @@ class Util:
     @staticmethod
     def get_max_balance():
         return app_settings.get_setting("max_balance")
+
+    @staticmethod
+    def get_timeout():
+        return app_settings.get_setting("timeout")

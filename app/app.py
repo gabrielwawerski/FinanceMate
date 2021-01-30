@@ -25,7 +25,7 @@ class App:
     v0.2:
         - Fixed transaction serializing by adding new `settings` value in DataType enum
         - and adding `uid` (unique transaction id) to it
-        -
+        - Added loading json data from (github pages) server
 
     v0.1:
         - Added Serializer class for easy data storing/loading to/from .json
@@ -40,7 +40,6 @@ class App:
         self._trans_serializer = TransactionSerializer()
         self._acc_serializer = AccountSerializer()
         self.version = "0.2"
-        app_settings.set_setting("currency", "")
 
         self.load_data()
         self._run = True
@@ -101,6 +100,7 @@ class App:
 
     def get_account(self, accountName):
         """doc"""
+        print(f"accounts: {self._accounts.keys()}")
         return self._accounts.get(accountName)
 
     def new_account(self, name, balance):
@@ -110,11 +110,13 @@ class App:
 
     def account_info(self, account):
         print("Account info:")
+        print()
         print(f"{account.name}\nBalance: {account.balance}{Util.get_currency()}\nTransactions: {len(account.transactions)}")
 
     def list_accounts(self):
         print(f"Accounts: {len(self._accounts)}")
         # print("------------------")
+        print(self._accounts)
         for acc in self._accounts.values():
             print(f"{acc.name}\nBalance: {acc.balance}{Util.get_currency()}\nTransactions: {len(acc.transactions)}")
             print("------------------")
