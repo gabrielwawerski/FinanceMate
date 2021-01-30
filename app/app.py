@@ -80,7 +80,7 @@ class App:
 
                 self.new_account(acc_name, acc_balance)
             elif selection is MenuOption.EXIT.value:
-                print("exit!")
+                print("quit!")
                 self.quit()
             else:
                 print("else!")

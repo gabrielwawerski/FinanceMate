@@ -1,6 +1,7 @@
 import jsonpickle
 from json import JSONEncoder
 from enum import Enum
+import json, urllib.request
 
 
 class DataType(Enum):
@@ -39,16 +40,36 @@ class SimpleSerializer(Serializer):
                     return jsonpickle.decode(file.read())
 
 
-class SettingsSerializer(SimpleSerializer):
+class ServerSerializer(Serializer):
+    def save(self, data):
+        print(f"Saving {self.data_type}...", end=" ")
+        for dataType in DataType:
+            if dataType is self.data_type:
+                with open(self.file_name, "w") as file:
+                    print("Done.")
+                    file.write(jsonpickle.encode(data))
+
+    def load(self):
+        print(f"Loading {self.data_type}...", end=" ")
+        for dataType in DataType:
+            if dataType is self.data_type:
+                with urllib.request.urlopen(f"https://gabrielwawerski.github.io/FinanceMate/{self.data_type}") as url:
+                    print(f"https://gabrielwawerski.github.io/FinanceMate/{self.data_type}")
+                    data = json.loads(url.read().decode())
+                    print("Done.")
+                    return data
+
+
+class SettingsSerializer(ServerSerializer):
     def __init__(self):
         super().__init__(DataType.SETTINGS)
 
 
-class AccountSerializer(SimpleSerializer):
+class AccountSerializer(ServerSerializer):
     def __init__(self):
         super().__init__(DataType.ACCOUNTS)
 
 
-class TransactionSerializer(SimpleSerializer):
+class TransactionSerializer(ServerSerializer):
     def __init__(self):
         super().__init__(DataType.TRANSACTIONS)
