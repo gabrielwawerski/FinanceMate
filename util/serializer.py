@@ -1,8 +1,6 @@
-import json
 import jsonpickle
 from json import JSONEncoder
 from enum import Enum
-from util.config import *
 
 
 class DataType(Enum):
@@ -25,8 +23,6 @@ class Serializer:
 
 class SimpleSerializer(Serializer):
     def save(self, data):
-        data_type = self.data_type
-
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(self.file_name, "w") as file:
@@ -35,7 +31,6 @@ class SimpleSerializer(Serializer):
 
     def load(self):
         print(f"Load {self.data_type}...", end=" ")
-        data_type = self.data_type
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(self.file_name, "r") as file:

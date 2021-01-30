@@ -10,6 +10,7 @@ class Settings:
         return self.settings[name]
 
     def set_setting(self, name, value):
+        print(f"Setting {name} to {value}")
         self.settings[name] = value
 
     def save(self):

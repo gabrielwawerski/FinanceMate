@@ -1,11 +1,10 @@
-from util.config import MAX_BALANCE
+from util.settings import *
 
 
 class Account:
     def __init__(self, name='Client', account_balance=0):
         self._name = name
         self._balance = account_balance
-        print(type(self._balance))
         self._transactions = {}
 
     @property
@@ -29,8 +28,8 @@ class Account:
 
     def add_balance(self, amount):
         balance = int(self._balance)
-        if balance + amount > MAX_BALANCE:
-            raise ValueError(f"Balance can't be higher than {MAX_BALANCE}. Balance after: {balance + amount}")
+        if balance + amount > get_max_balance():
+            raise ValueError(f"Balance can't be higher than {get_max_balance()}. Balance after: {balance + amount}")
         else:
             self._balance += amount
 
@@ -54,3 +53,7 @@ class Account:
 
     def get_info(self):
         return dict(name=self._name, balance=self._balance, transactions=str(self._transactions.__len__()))
+
+
+def get_max_balance():
+    return app_settings.get_setting("max_balance")

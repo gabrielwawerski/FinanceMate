@@ -2,6 +2,7 @@ from account import *
 from util.serializer import *
 from transaction import *
 from util.settings import *
+from util.util import *
 
 
 class MenuOption(Enum):
@@ -110,31 +111,31 @@ class App:
     def new_account(self, *args):
         account = Account(*args)
         self._accounts[account.name] = account
-        print(f"Account: {account.name}, Balance: {account.balance}{CURRENCY}\nAccount Created Succesfully.")
+        print(f"Account: {account.name}, Balance: {account.balance}{get_currency()}\nAccount Created Succesfully.")
 
     def account_info(self, account):
         print("Account info:")
-        print(f"{account.name}\nBalance: {account.balance}{CURRENCY}\nTransactions: {len(account.transactions)}")
+        print(f"{account.name}\nBalance: {account.balance}{get_currency()}\nTransactions: {len(account.transactions)}")
 
     def list_accounts(self):
         print(f"Accounts: {len(self._accounts)}")
         # print("------------------")
         for acc in self._accounts.values():
-            print(f"{acc.name}\nBalance: {acc.balance}{CURRENCY}\nTransactions: {len(acc.transactions)}")
+            print(f"{acc.name}\nBalance: {acc.balance}{get_currency()}\nTransactions: {len(acc.transactions)}")
             print("------------------")
 
     def list_transactions(self):
         for t in self._transactions.values():
-            print(f"{self._transactions[t]}. {t.amount}{CURRENCY}\nAccount: {t.account_name}\n{t.timestamp}")
+            print(f"{self._transactions[t]}. {t.amount}{get_currency()}\nAccount: {t.account_name}\n{t.timestamp}")
 
     def list_account_transactions(self, account):
-        print(f"{account.name}({account.balance}{CURRENCY}) Transactions: ({len(account.transactions)})")
+        print(f"{account.name}({account.balance}{get_currency()}) Transactions: ({len(account.transactions)})")
         for t in account.transactions.values():
             if t.transaction_type is TransactionType.PAY:
                 sign = "-"
             else:
                 sign = "+"
-            print(f"{t.get_id()}. {sign}{t.amount}{CURRENCY}\n{t.timestamp}")  # bug z id
+            print(f"{t.get_id()}. {sign}{t.amount}{get_currency()}\n{t.timestamp}")  # bug z id
 
     @staticmethod
     def add_balance(self, account, amount):
