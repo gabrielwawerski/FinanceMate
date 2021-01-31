@@ -57,9 +57,9 @@ class ServerSerializer(Serializer):
             if dataType is self.data_type:
                 with urllib.request.urlopen(f"{server_url}{self.data_type}") as url:
                     print(f"https://gabrielwawerski.github.io/FinanceMate/{self.data_type}")
-                    data = json.loads(url.read())
+                    data = url.read()
                     print("Done.")
-                    return data
+                    return jsonpickle.decode(data)
 
 
 class SettingsSerializer(ServerSerializer):

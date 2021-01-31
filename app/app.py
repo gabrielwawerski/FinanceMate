@@ -1,3 +1,5 @@
+from functools import reduce
+
 from transaction import *
 from account import *
 from util.settings import *
@@ -50,8 +52,9 @@ class App:
             for option in MenuOption:
                 print(f"{option.value}. {str(option)}")
 
-        account = self.get_account("Gabriel Wawerski")
+        account = self.get_account('Gabriel Wawerski')
         print(f"FinanceMate v{self.version}")
+        print(f"account: {account}")
         print_menu()
         selection = int(input("> "))
 
@@ -63,7 +66,7 @@ class App:
             elif selection is MenuOption.ACCOUNT_INFO.value:
                 self.account_info(account)
             elif selection is MenuOption.LIST_TRANSACTIONS.value:
-                self.list_account_transactions(account)
+                self.list_transactions(account)
             elif selection is MenuOption.LIST_ACCOUNTS.value:
                 self.list_accounts()
             elif selection is MenuOption.ADD_ACCOUNT.value:
@@ -89,13 +92,15 @@ class App:
     def new_transaction(self, account, amount, transaction_type):
         if transaction_type is TransactionType.PAY:
             pay_trans = PayTransaction(account, amount)
-            self._accounts.get(account.name).add_transaction(pay_trans)
             self._transactions[f"{pay_trans.get_id()}"] = pay_trans
+            self.save_transactions()
+            self.save_settings()
             return pay_trans
         elif transaction_type is TransactionType.ADD:
             add_trans = AddTransaction(account, amount)
-            self._accounts.get(account.name).add_transaction(add_trans)
             self._transactions[f'{add_trans.get_id()}'] = add_trans
+            self.save_transactions()
+            self.save_settings()
             return add_trans
 
     def get_account(self, accountName):
@@ -107,32 +112,38 @@ class App:
         account = Account(name, balance)
         self._accounts[account.name] = account
         print(f"Account: {account.name}, Balance: {account.balance}{Util.get_currency()}\nAccount Created Succesfully.")
+        self.save_accounts()
 
     def account_info(self, account):
         print("Account info:")
         print()
-        print(f"{account.name}\nBalance: {account.balance}{Util.get_currency()}\nTransactions: {len(account.transactions)}")
+        print(f"{account.name}\nBalance: {account.balance}{Util.get_currency()}\nTransactions: {len(self._get_account_transactions(account))}")
 
     def list_accounts(self):
         print(f"Accounts: {len(self._accounts)}")
         # print("------------------")
-        print(self._accounts)
-        for acc in self._accounts.values():
-            print(f"{acc.name}\nBalance: {acc.balance}{Util.get_currency()}\nTransactions: {len(acc.transactions)}")
+        for a in self._accounts.values():
+            print(f"{a.name}\nBalance: {a.balance}{Util.get_currency()}\nTransactions: {len(self._get_account_transactions(a))}")
             print("------------------")
 
-    def list_transactions(self):
-        for t in self._transactions.values():
-            print(f"{self._transactions[t]}. {t.amount}{Util.get_currency()}\nAccount: {t.account_name}\n{t.timestamp}")
-
-    def list_account_transactions(self, account):
-        print(f"{account.name}({account.balance}{Util.get_currency()}) Transactions: ({len(account.transactions)})")
-        for t in account.transactions.values():
-            if t.transaction_type is TransactionType.PAY:
+    def list_transactions(self, account):
+        print(f"{account.name}({account.balance}{Util.get_currency()}) Transactions: ({self._get_account_transactions(account)})")
+        adict = self._transactions.values()
+        for trans in adict:
+            if trans.transaction_type is TransactionType.PAY:
                 sign = "-"
             else:
                 sign = "+"
-            print(f"{t.get_id()}. {sign}{t.amount}{Util.get_currency()}\n{t.timestamp}")  # bug z id
+            print(f"{trans.get_id()}. {sign}{trans.amount}{Util.get_currency()}\n{trans.timestamp}")  # bug z id
+
+    def _get_account_transactions(self, account):
+        transactions = list()
+        for t in self._transactions.values():
+            print(f"transactions: {t}")
+            if t.account_name is account.name:
+                print("found!")
+                transactions.append(t)
+        return transactions
 
     @staticmethod
     def add_balance(self, account, amount):
@@ -143,9 +154,18 @@ class App:
         account.sub_balance(amount)
 
     def save_data(self):
+        self.save_settings()
+        self.save_transactions()
+        self.save_accounts()
+
+    def save_settings(self):
         self.settings.save()
-        self._trans_serializer.save(self._transactions)
+
+    def save_accounts(self):
         self._acc_serializer.save(self._accounts)
+
+    def save_transactions(self):
+        self._trans_serializer.save(self._transactions)
 
     def load_data(self):
         self.settings.load()
