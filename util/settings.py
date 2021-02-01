@@ -12,6 +12,7 @@ class Settings:
     def set_setting(self, name, value):
         print(f"Setting {name} to {value}")
         self.settings[name] = value
+        self.save()
 
     def save(self):
         self.serializer.save(self.settings)
