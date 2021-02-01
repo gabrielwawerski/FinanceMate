@@ -3,23 +3,6 @@ from util.serializer import *
 from util.settings import *
 
 
-class TransactionType(Enum):
-    PAY = 1
-    ADD = 2
-
-
-def format_time_date(*data):
-    alist = list()
-    for d in data:
-        if d <= 9:
-            d = str(d)
-            d = d.replace(d, f"0{d}")
-            alist.append(d)
-        else:
-            alist.append(str(d))
-    return tuple(alist)
-
-
 class ID:
     def __init__(self):
         self.id = app_settings.get_setting("uid")
@@ -46,6 +29,11 @@ class ID:
         return str(self.__dict__)
 
 
+class TransactionType(Enum):
+    PAY = 1
+    ADD = 2
+
+
 class Transaction:
     def __init__(self, account, amount, transaction_type):
         self.account_name = account.name
@@ -62,10 +50,10 @@ class Transaction:
         elif transaction_type is TransactionType.ADD:
             account.add_balance(amount)
 
-        print(f"{self.account_name}'s Transaction no. {self.id}: {self._sign()}{amount}{Util.get_currency()}")
+        print(f"{self.account_name}'s Transaction no. {self.id}: {self.sign()}{amount}{Util.get_currency()}")
         print(f"Current balance: {account.balance}{Util.get_currency()}")
 
-    def _sign(self):
+    def sign(self):
         if self.transaction_type is TransactionType.PAY:
             return "-"
         elif self.transaction_type is TransactionType.ADD:
@@ -87,3 +75,15 @@ class PayTransaction(Transaction):
 class AddTransaction(Transaction):
     def __init__(self, account, amount):
         super().__init__(account, amount, TransactionType.ADD)
+
+
+def format_time_date(*data):
+    alist = list()
+    for d in data:
+        if d <= 9:
+            d = str(d)
+            d = d.replace(d, f"0{d}")
+            alist.append(d)
+        else:
+            alist.append(str(d))
+    return tuple(alist)

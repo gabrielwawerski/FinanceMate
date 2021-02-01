@@ -19,9 +19,10 @@ class MenuOption(Enum):
 
 
 # TODO: Account Viewer: class that holds one account at a time. Can perform operations on it (adding transactions etc.)
-# Helper class so App's methods dealing with accounts doesn't need individual accounts.
+#       Helper class so App's methods dealing with accounts doesn't need individual accounts.
 # TODO: move methods operating on accounts from here? to account viewer?
 # TODO: json data from server (github pages)
+# TODO: login
 class App:
     """
     v0.2:
@@ -53,11 +54,10 @@ class App:
                 print(f"{option.value}. {str(option)}")
 
         account = self.get_account('Gabriel Wawerski')
+
         print(f"FinanceMate v{self.version}")
-        print(f"account: {account}")
         print_menu()
         selection = int(input("> "))
-
         while self._run:
             if selection is MenuOption.ADD_TRANSACTION.value:
                 print("How much did you pay?")
@@ -75,11 +75,12 @@ class App:
                 acc_name = input("> ")
                 print("Balance (default 0):", end=" ")
                 acc_balance = input("> ")
-                if acc_balance == "":
+                if acc_balance == "" or acc_balance == " ":
                     acc_balance = 0
                 else:
                     acc_balance = int(acc_balance)
-                    self.new_account(acc_name, acc_balance)
+
+                self.new_account(acc_name, acc_balance)
             elif selection is MenuOption.EXIT.value:
                 print("quit!")
                 self.quit()
@@ -94,13 +95,11 @@ class App:
             pay_trans = PayTransaction(account, amount)
             self._transactions[f"{pay_trans.get_id()}"] = pay_trans
             self.save_transactions()
-            self.save_settings()
             return pay_trans
         elif transaction_type is TransactionType.ADD:
             add_trans = AddTransaction(account, amount)
             self._transactions[f'{add_trans.get_id()}'] = add_trans
             self.save_transactions()
-            self.save_settings()
             return add_trans
 
     def get_account(self, accountName):
@@ -116,31 +115,26 @@ class App:
 
     def account_info(self, account):
         print("Account info:")
-        print()
+        print("-" * 30)
         print(f"{account.name}\nBalance: {account.balance}{Util.get_currency()}\nTransactions: {len(self._get_account_transactions(account))}")
 
     def list_accounts(self):
         print(f"Accounts: {len(self._accounts)}")
-        # print("------------------")
         for a in self._accounts.values():
             print(f"{a.name}\nBalance: {a.balance}{Util.get_currency()}\nTransactions: {len(self._get_account_transactions(a))}")
-            print("------------------")
+            print("-" * 19)
 
     def list_transactions(self, account):
         print(f"{account.name}({account.balance}{Util.get_currency()}) Transactions: ({len(self._get_account_transactions(account))})")
         adict = self._transactions.values()
         for trans in adict:
-            if trans.transaction_type is TransactionType.PAY:
-                sign = "-"
-            else:
-                sign = "+"
-            print(f"{trans.get_id()}. {sign}{trans.amount}{Util.get_currency()}\n{trans.timestamp}")  # bug z id
+            print(f"[{trans.get_id()}]. {trans.sign()}{trans.amount}{Util.get_currency()}\n{trans.timestamp}")
+            print("-" * 19)
 
     def _get_account_transactions(self, account):
         transactions = list()
         for t in self._transactions.values():
             if t.account_name == account.name:
-                print("found!")
                 transactions.append(t)
         return tuple(transactions)
 
