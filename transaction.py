@@ -8,13 +8,17 @@ class TransactionType(Enum):
     ADD = 2
 
 
-def format_time_date(*data)
-	for d in data:
-		if d <= 9:
-        	d = d.replace(d, f"0{str_day}")
+def format_time_date(*data):
+    alist = list()
+    for d in data:
+        if d <= 9:
+            d = str(d)
+            d = d.replace(d, f"0{d}")
+            alist.append(d)
         else:
-            d
-    return data
+            alist.append(str(d))
+    return tuple(alist)
+
 
 class ID:
     def __init__(self):
@@ -47,28 +51,25 @@ class Transaction:
         self.account_name = account.name
         self.amount = amount
         self.transaction_type = transaction_type
-        dt = datetime.now()
-        if dt.day <= 9:
-            str_day = str(dt.day)
-            day = str_day.replace(str_day, f"0{str_day}")
-        else:
-            day = dt.day
-
-        if dt.month <= 9:
-            str_month = str(dt.month)
-            month = str_month.replace(str_month, f"0{str_month}")
-        else:
-            month = dt.month
-        self.timestamp = f"{dt.hour}:{dt.minute}:{dt.second} {day}.{month}.{dt.year}"
         self.id = ID()()
-        print(f"{self.account_name}'s Transaction no. {self.id} - for {amount}{Util.get_currency()}")
+
+        dt = datetime.now()
+        hour, minute, second, day, month = format_time_date(dt.hour, dt.minute, dt.second, dt.day, dt.month)
+        self.timestamp = f"{hour}:{minute}:{second} {day}.{month}.{dt.year}"
 
         if transaction_type is TransactionType.PAY:
             account.sub_balance(amount)
         elif transaction_type is TransactionType.ADD:
             account.add_balance(amount)
 
+        print(f"{self.account_name}'s Transaction no. {self.id}: {self._sign()}{amount}{Util.get_currency()}")
         print(f"Current balance: {account.balance}{Util.get_currency()}")
+
+    def _sign(self):
+        if self.transaction_type is TransactionType.PAY:
+            return "-"
+        elif self.transaction_type is TransactionType.ADD:
+            return "+"
 
     def get_id(self):
         return self.id

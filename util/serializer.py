@@ -4,6 +4,8 @@ from enum import Enum
 import json
 import urllib.request
 
+path = "data/"
+
 
 class DataType(Enum):
     ACCOUNTS = 1
@@ -28,7 +30,7 @@ class SimpleSerializer(Serializer):
         print(f"Saving {self.data_type}...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                with open(self.file_name, "w") as file:
+                with open(path + self.file_name, "w") as file:
                     print("Done.")
                     file.write(jsonpickle.encode(data))
 
@@ -36,7 +38,7 @@ class SimpleSerializer(Serializer):
         print(f"Loading {self.data_type}...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                with open(self.file_name, "r") as file:
+                with open(path + self.file_name, "r") as file:
                     print("Done.")
                     return jsonpickle.decode(file.read())
 
@@ -46,7 +48,7 @@ class ServerSerializer(Serializer):
         print(f"Saving {self.data_type}...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                with open(self.file_name, "w") as file:
+                with open(path + self.file_name, "w") as file:
                     print("Done.")
                     file.write(jsonpickle.encode(data))
 

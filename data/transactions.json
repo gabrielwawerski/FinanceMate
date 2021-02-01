@@ -1,0 +1,1 @@
+{"1": {"py/object": "transaction.PayTransaction", "account_name": "Gabriel Wawerski", "amount": 119, "transaction_type": {"py/reduce": [{"py/type": "transaction.TransactionType"}, {"py/tuple": [1]}]}, "timestamp": "11:08:25 01.02.2021", "id": 1}}

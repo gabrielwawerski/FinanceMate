@@ -9,9 +9,9 @@ class Settings:
     def get_setting(self, name):
         return self.settings[name]
 
-    def set_setting(self, name, value):
-        print(f"Setting {name} to {value}")
-        self.settings[name] = value
+    def set_setting(self, setting, value):
+        print(f"[Settings]: {setting} -> {value}")
+        self.settings[setting] = value
         self.save()
 
     def save(self):

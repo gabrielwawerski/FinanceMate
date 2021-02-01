@@ -127,7 +127,7 @@ class App:
             print("------------------")
 
     def list_transactions(self, account):
-        print(f"{account.name}({account.balance}{Util.get_currency()}) Transactions: ({self._get_account_transactions(account)})")
+        print(f"{account.name}({account.balance}{Util.get_currency()}) Transactions: ({len(self._get_account_transactions(account))})")
         adict = self._transactions.values()
         for trans in adict:
             if trans.transaction_type is TransactionType.PAY:
@@ -139,11 +139,10 @@ class App:
     def _get_account_transactions(self, account):
         transactions = list()
         for t in self._transactions.values():
-            print(f"transactions: {t}")
-            if t.account_name is account.name:
+            if t.account_name == account.name:
                 print("found!")
                 transactions.append(t)
-        return transactions
+        return tuple(transactions)
 
     @staticmethod
     def add_balance(self, account, amount):
