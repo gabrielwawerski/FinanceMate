@@ -24,15 +24,13 @@ class Settings:
 app_settings = Settings()
 
 
-class Util:
-    @staticmethod
-    def get_currency():
-        return app_settings.get_setting("currency")
+def get_currency():
+    return app_settings.get_setting("currency")
 
-    @staticmethod
-    def get_max_balance():
-        return app_settings.get_setting("max_balance")
 
-    @staticmethod
-    def get_timeout():
-        return app_settings.get_setting("timeout")
+def get_max_balance():
+    return app_settings.get_setting("max_balance")
+
+
+def get_timeout():
+    return app_settings.get_setting("timeout")

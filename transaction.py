@@ -50,8 +50,8 @@ class Transaction:
         elif transaction_type is TransactionType.ADD:
             account.add_balance(amount)
 
-        print(f"{self.account_name}'s Transaction no. {self.id}: {self.sign()}{amount}{Util.get_currency()}")
-        print(f"Current balance: {account.balance}{Util.get_currency()}")
+        print(f"{self.account_name}'s Transaction no. {self.id}: {self.sign()}{amount}{get_currency()}")
+        print(f"Current balance: {account.balance}{get_currency()}")
 
     def sign(self):
         if self.transaction_type is TransactionType.PAY:
@@ -64,7 +64,7 @@ class Transaction:
 
     def get_info(self):
         print(f"{self.id}: {self.transaction_type}")
-        print(f"Account: {self.account_name}\nAmount:{self.amount}{Util.get_currency()}\n{self.timestamp}")
+        print(f"Account: {self.account_name}\nAmount:{self.amount}{get_currency()}\n{self.timestamp}")
 
 
 class PayTransaction(Transaction):

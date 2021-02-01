@@ -8,8 +8,8 @@ class Account:
 
     def add_balance(self, amount):
         balance = int(self.balance)
-        if balance + amount > Util.get_max_balance():
-            raise ValueError(f"Balance can't be higher than {Util.get_max_balance()}. Balance after: {balance + amount}")
+        if balance + amount > get_max_balance():
+            raise ValueError(f"Balance can't be higher than {get_max_balance()}. Balance after: {balance + amount}")
         else:
             self.balance += amount
 

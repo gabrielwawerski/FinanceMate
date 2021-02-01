@@ -107,31 +107,35 @@ class App:
         print(f"accounts: {self._accounts.keys()}")
         return self._accounts.get(accountName)
 
-    def new_account(self, name, balance):
-        account = Account(name, balance)
-        self._accounts[account.name] = account
-        print(f"Account: {account.name}, Balance: {account.balance}{Util.get_currency()}\nAccount Created Succesfully.")
-        self.save_accounts()
-
     def account_info(self, account):
         print("Account info:")
         print("-" * 30)
-        print(f"{account.name}\nBalance: {account.balance}{Util.get_currency()}\nTransactions: {len(self._get_account_transactions(account))}")
-
-    def list_accounts(self):
-        print(f"Accounts: {len(self._accounts)}")
-        for a in self._accounts.values():
-            print(f"{a.name}\nBalance: {a.balance}{Util.get_currency()}\nTransactions: {len(self._get_account_transactions(a))}")
-            print("-" * 19)
+        print(f"{account.name}\nBalance: {account.balance}{get_currency()}\nTransactions: {len(self._get_acc_transactions(account))}")
 
     def list_transactions(self, account):
-        print(f"{account.name}({account.balance}{Util.get_currency()}) Transactions: ({len(self._get_account_transactions(account))})")
+        print("-" * 30)
+        print(f"{account.name}({account.balance}{get_currency()}) Transactions: ({len(self._get_acc_transactions(account))})")
         adict = self._transactions.values()
         for trans in adict:
-            print(f"[{trans.get_id()}]. {trans.sign()}{trans.amount}{Util.get_currency()}\n{trans.timestamp}")
+            print(f"[{trans.get_id()}]. {trans.sign()}{trans.amount}{get_currency()}\n{trans.timestamp}")
             print("-" * 19)
 
-    def _get_account_transactions(self, account):
+    def list_accounts(self):
+        print("-" * 30)
+        print(f"Accounts: {len(self._accounts)}")
+        print("-" * 30)
+        for a in self._accounts.values():
+            print(f"{a.name}\nBalance: {a.balance}{get_currency()}\nTransactions: {len(self._get_acc_transactions(a))}")
+            print("-" * 19)
+
+    def new_account(self, name, balance):
+        account = Account(name, balance)
+        self._accounts[account.name] = account
+        print(f"Account: {account.name}, Balance: {account.balance}{get_currency()}")
+        print("Account Created Succesfully.")
+        self.save_accounts()
+
+    def _get_acc_transactions(self, account):
         transactions = list()
         for t in self._transactions.values():
             if t.account_name == account.name:
@@ -139,11 +143,11 @@ class App:
         return tuple(transactions)
 
     @staticmethod
-    def add_balance(self, account, amount):
+    def add_balance(account, amount):
         account.add_balance(amount)
 
     @staticmethod
-    def sub_balance(self, account, amount):
+    def sub_balance(account, amount):
         account.sub_balance(amount)
 
     def save_data(self):

@@ -64,16 +64,16 @@ class ServerSerializer(Serializer):
                     return jsonpickle.decode(data)
 
 
-class SettingsSerializer(ServerSerializer):
+class SettingsSerializer(SimpleSerializer):
     def __init__(self):
         super().__init__(DataType.SETTINGS)
 
 
-class AccountSerializer(ServerSerializer):
+class AccountSerializer(SimpleSerializer):
     def __init__(self):
         super().__init__(DataType.ACCOUNTS)
 
 
-class TransactionSerializer(ServerSerializer):
+class TransactionSerializer(SimpleSerializer):
     def __init__(self):
         super().__init__(DataType.TRANSACTIONS)
