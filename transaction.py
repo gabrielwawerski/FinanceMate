@@ -8,6 +8,14 @@ class TransactionType(Enum):
     ADD = 2
 
 
+def format_time_date(*data)
+	for d in data:
+		if d <= 9:
+        	d = d.replace(d, f"0{str_day}")
+        else:
+            d
+    return data
+
 class ID:
     def __init__(self):
         self.id = app_settings.get_setting("uid")
