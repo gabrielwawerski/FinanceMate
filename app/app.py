@@ -16,6 +16,7 @@ class MainMenu(MenuEnum):
     LIST_TRANSACTIONS = 3
     LIST_ACCOUNTS = 4
     ADD_ACCOUNT = 5
+    DEFAULT_SETTINGS = 8
     EXIT = 0
 
 
@@ -95,6 +96,9 @@ class App:
                     acc_balance = int(acc_balance)
 
                 self.new_account(acc_name, acc_balance)
+            elif selection is MainMenu.DEFAULT_SETTINGS.value:
+                set_default_settings()
+                self.save_settings()
             elif selection is MainMenu.EXIT.value:
                 self.quit()
             else:

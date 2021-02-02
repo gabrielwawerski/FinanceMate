@@ -9,6 +9,7 @@ from util.settings import default_settings, server_url
 path = "data/"
 
 
+# TODO: move up! (to data helper class?, make serializer generic?)
 class DataType(Enum):
     ACCOUNTS = 1
     TRANSACTIONS = 2
@@ -37,9 +38,10 @@ class Serializer:
     def load(self):
         print(f"Loading {self.data_type}...", end=" ")
         if not isfile(path + self.file_name):
-            print("Done.")
             # TODO: defaults for every file!!!
-            return default_settings()
+            settings.set_default_settings()
+            print("Done.")
+            return
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(path + self.file_name, "r") as file:
@@ -96,6 +98,6 @@ def mkfile(file_name):
         if not os.path.isfile(path + file_name):
             print(f"Loading default settings...")
             with open(path + file_name, "w+") as f:
-                f.write(server_default_settings())
+                f.write(settings.server_default_settings())
     else:
         print(f"Already exists, omitting: {file_name}")

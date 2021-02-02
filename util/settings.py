@@ -1,4 +1,6 @@
 from enum import Enum
+import requests
+import jsonpickle
 
 
 # default settings
@@ -13,6 +15,7 @@ timeout = {"timeout": 10}
 server_url = "https://gabrielwawerski.github.io/FinanceMate/"
 data_dir = "data/"
 default_settings = "settings_default.json"
+full_data_url = server_url + data_dir
 
 
 class Settings:
@@ -46,13 +49,13 @@ class Settings:
 app_settings = Settings()
 
 
-def default_settings():
-    app_settings._add_setting(**acc_uid)
-    app_settings._add_setting(**trans_uid)
-    app_settings._add_setting(**currency)
-    app_settings._add_setting(**max_balance)
-    app_settings._add_setting(**timeout)
-    return app_settings.get()
+def set_default_settings():
+    app_settings.load(server_default_settings())
+
+
+def server_default_settings():
+    data = requests.get(f"{full_data_url}{default_settings}").text
+    return jsonpickle.decode(data)
 
 
 def get_acc_uid():
