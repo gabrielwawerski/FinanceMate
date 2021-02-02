@@ -1,32 +1,6 @@
 from datetime import datetime
-from util.serializer import *
-from util.settings import *
-
-
-class ID:
-    def __init__(self):
-        self.id = app_settings.get_setting("uid")
-        # TODO: load unique id from 'settings.json' here
-
-    def __call__(self, *args, **kwargs):
-        self.id += 1
-        app_settings.set_setting("uid", self.id)
-        return self.id
-
-    def __setstate__(self, state):
-        state.setdefault('NodeText', None)
-
-        for k, v in state.items():
-            setattr(self, k, v)
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-
-        del state['NodeText']
-        return state
-
-    def __repr__(self) -> str:
-        return str(self.__dict__)
+from enum import Enum
+import util.settings as settings
 
 
 class TransactionType(Enum):
@@ -36,35 +10,27 @@ class TransactionType(Enum):
 
 class Transaction:
     def __init__(self, account, amount, transaction_type):
+        self.id = settings.TransactionID()()
         self.account_name = account.name
         self.amount = amount
         self.transaction_type = transaction_type
-        self.id = ID()()
 
         dt = datetime.now()
         hour, minute, second, day, month = format_time_date(dt.hour, dt.minute, dt.second, dt.day, dt.month)
         self.timestamp = f"{hour}:{minute}:{second} {day}.{month}.{dt.year}"
 
-        if transaction_type is TransactionType.PAY:
-            account.sub_balance(amount)
-        elif transaction_type is TransactionType.ADD:
-            account.add_balance(amount)
-
-        print(f"{self.account_name}'s Transaction no. {self.id}: {self.sign()}{amount}{get_currency()}")
-        print(f"Current balance: {account.balance}{get_currency()}")
+        print(f"{self.account_name}'s Transaction no. {self.id}: {self.sign()}{amount}{settings.get_currency()}")
+        print(f"Current balance: {account.balance}{settings.get_currency()}")
 
     def sign(self):
-        if self.transaction_type is TransactionType.PAY:
-            return "-"
-        elif self.transaction_type is TransactionType.ADD:
-            return "+"
+        return "-" if self.transaction_type is TransactionType.PAY else TransactionType.ADD
 
     def get_id(self):
         return self.id
 
     def get_info(self):
         print(f"{self.id}: {self.transaction_type}")
-        print(f"Account: {self.account_name}\nAmount:{self.amount}{get_currency()}\n{self.timestamp}")
+        print(f"Account: {self.account_name}\nAmount:{self.amount}{settings.get_currency()}\n{self.timestamp}")
 
 
 class PayTransaction(Transaction):
@@ -82,8 +48,7 @@ def format_time_date(*data):
     for d in data:
         if d <= 9:
             d = str(d)
-            d = d.replace(d, f"0{d}")
-            alist.append(d)
+            alist.append(d.replace(d, f"0{d}"))  # if value is below 9, insert 0 for proper formatting.
         else:
             alist.append(str(d))
     return tuple(alist)

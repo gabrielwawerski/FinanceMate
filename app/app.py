@@ -1,11 +1,16 @@
-from functools import reduce
-
-from transaction import *
-from account import *
+from account import Account
+from transaction import PayTransaction, AddTransaction, TransactionType
+import util.serializer as serializer
 from util.settings import *
 
 
-class MenuOption(Enum):
+class MenuEnum(Enum):
+    def __str__(self):
+        option = str.title((str(self.name)))
+        return option.replace("_", " ")
+
+
+class MainMenu(MenuEnum):
     ADD_TRANSACTION = 1
     ACCOUNT_INFO = 2
     LIST_TRANSACTIONS = 3
@@ -13,9 +18,9 @@ class MenuOption(Enum):
     ADD_ACCOUNT = 5
     EXIT = 0
 
-    def __str__(self):
-        option = str.title((str(self.name)))
-        return option.replace("_", " ")
+
+class Login(MenuEnum):
+    pass
 
 
 # TODO: Account Viewer: class that holds one account at a time. Can perform operations on it (adding transactions etc.)
@@ -23,8 +28,15 @@ class MenuOption(Enum):
 # TODO: move methods operating on accounts from here? to account viewer?
 # TODO: json data from server (github pages)
 # TODO: login
+# TODO: admin panel
+    # TODO: remove account
 class App:
     """
+    v0.2.1:
+        - Simplified account data serializing
+        - Data is now saved after operations on it
+        - Fixed transaction data formatting
+
     v0.2:
         - Fixed transaction serializing by adding new `settings` value in DataType enum
         - and adding `uid` (unique transaction id) to it
@@ -32,44 +44,46 @@ class App:
 
     v0.1:
         - Added Serializer class for easy data storing/loading to/from .json
-        -
-
-
     """
     def __init__(self):
-        self._transactions = {}
-        self._accounts = {}
         self.settings = app_settings
-        self._trans_serializer = TransactionSerializer()
-        self._acc_serializer = AccountSerializer()
-        self.version = "0.2"
+        self._accounts = {}
+        self._transactions = {}
+
+        self._settings_serializer = serializer.SettingsSerializer()
+        self._acc_serializer = serializer.AccountSerializer()
+        self._trans_serializer = serializer.TransactionSerializer()
+        self.version = "0.2.1"
 
         self.load_data()
         self._run = True
 
+    def login(self):
+        pass
+
     def run(self):
-        def print_menu():
-            print("-" * 30)
-            for option in MenuOption:
+        def print_main_menu():
+            div()
+            for option in MainMenu:
                 print(f"{option.value}. {str(option)}")
 
         account = self.get_account('Gabriel Wawerski')
 
         print(f"FinanceMate v{self.version}")
-        print_menu()
+        print_main_menu()
         selection = int(input("> "))
         while self._run:
-            if selection is MenuOption.ADD_TRANSACTION.value:
+            if selection is MainMenu.ADD_TRANSACTION.value:
                 print("How much did you pay?")
                 amount = int(input("> "))
                 self.new_transaction(account, amount, TransactionType.PAY)
-            elif selection is MenuOption.ACCOUNT_INFO.value:
+            elif selection is MainMenu.ACCOUNT_INFO.value:
                 self.account_info(account)
-            elif selection is MenuOption.LIST_TRANSACTIONS.value:
+            elif selection is MainMenu.LIST_TRANSACTIONS.value:
                 self.list_transactions(account)
-            elif selection is MenuOption.LIST_ACCOUNTS.value:
+            elif selection is MainMenu.LIST_ACCOUNTS.value:
                 self.list_accounts()
-            elif selection is MenuOption.ADD_ACCOUNT.value:
+            elif selection is MainMenu.ADD_ACCOUNT.value:
                 print("Create a new Account:")
                 print("Account Name:", end=" ")
                 acc_name = input("> ")
@@ -81,52 +95,55 @@ class App:
                     acc_balance = int(acc_balance)
 
                 self.new_account(acc_name, acc_balance)
-            elif selection is MenuOption.EXIT.value:
-                print("quit!")
+            elif selection is MainMenu.EXIT.value:
                 self.quit()
             else:
                 print("else!")
 
-            print_menu()
+            print_main_menu()
             selection = int(input("> "))
 
     def new_transaction(self, account, amount, transaction_type):
         if transaction_type is TransactionType.PAY:
             pay_trans = PayTransaction(account, amount)
-            self._transactions[f"{pay_trans.get_id()}"] = pay_trans
-            self.save_transactions()
+            self._add_transaction(pay_trans)
+            self._sub_acc_bal(account, amount)
             return pay_trans
         elif transaction_type is TransactionType.ADD:
             add_trans = AddTransaction(account, amount)
-            self._transactions[f'{add_trans.get_id()}'] = add_trans
-            self.save_transactions()
+            self._add_transaction(add_trans)
+            self._add_acc_bal(account, amount)
             return add_trans
+
+    def _add_transaction(self, transaction):
+        self._transactions[f'{transaction.get_id()}'] = transaction  # add new transaction to db
+        self.save_transactions()
+        self.save_settings()
 
     def get_account(self, accountName):
         """doc"""
-        print(f"accounts: {self._accounts.keys()}")
         return self._accounts.get(accountName)
 
     def account_info(self, account):
-        print("Account info:")
-        print("-" * 30)
-        print(f"{account.name}\nBalance: {account.balance}{get_currency()}\nTransactions: {len(self._get_acc_transactions(account))}")
+        title("Account info:")
+        print(f"{account.name}")
+        print(f"Balance: {account.balance}{get_currency()}")
+        print(f"Transactions: {len(self._get_acc_transactions(account))}")
 
     def list_transactions(self, account):
-        print("-" * 30)
-        print(f"{account.name}({account.balance}{get_currency()}) Transactions: ({len(self._get_acc_transactions(account))})")
-        adict = self._transactions.values()
-        for trans in adict:
-            print(f"[{trans.get_id()}]. {trans.sign()}{trans.amount}{get_currency()}\n{trans.timestamp}")
-            print("-" * 19)
+        title(f"{account.name}({account.balance}{get_currency()}) Transactions: ({len(self._get_acc_transactions(account))})", 45)
+        transactions = self._transactions.values()
+        for t in transactions:
+            print(f"[{t.get_id()}]. {t.sign()}{t.amount}{get_currency()}")
+            print(f"{t.timestamp}")
+            subdiv()
 
     def list_accounts(self):
-        print("-" * 30)
-        print(f"Accounts: {len(self._accounts)}")
-        print("-" * 30)
+        title(f"Accounts: {len(self._accounts)}")
         for a in self._accounts.values():
-            print(f"{a.name}\nBalance: {a.balance}{get_currency()}\nTransactions: {len(self._get_acc_transactions(a))}")
-            print("-" * 19)
+            print(f"{a.name}\nBalance: {a.balance}{get_currency()}")
+            print(f"Transactions: {len(self._get_acc_transactions(a))}")
+            subdiv()
 
     def new_account(self, name, balance):
         account = Account(name, balance)
@@ -134,6 +151,7 @@ class App:
         print(f"Account: {account.name}, Balance: {account.balance}{get_currency()}")
         print("Account Created Succesfully.")
         self.save_accounts()
+        self.save_settings()
 
     def _get_acc_transactions(self, account):
         transactions = list()
@@ -143,11 +161,11 @@ class App:
         return tuple(transactions)
 
     @staticmethod
-    def add_balance(account, amount):
+    def _add_acc_bal(account, amount):
         account.add_balance(amount)
 
     @staticmethod
-    def sub_balance(account, amount):
+    def _sub_acc_bal(account, amount):
         account.sub_balance(amount)
 
     def save_data(self):
@@ -156,7 +174,7 @@ class App:
         self.save_accounts()
 
     def save_settings(self):
-        self.settings.save()
+        self._settings_serializer.save(self.settings.get())
 
     def save_accounts(self):
         self._acc_serializer.save(self._accounts)
@@ -165,7 +183,7 @@ class App:
         self._trans_serializer.save(self._transactions)
 
     def load_data(self):
-        self.settings.load()
+        app_settings.load(self._settings_serializer.load())
         self._transactions = self._trans_serializer.load()
         self._accounts = self._acc_serializer.load()
 
@@ -181,3 +199,21 @@ class App:
     def quit(self):
         self.save_data()
         quit()
+
+
+def divider(length):
+    print("-" * length)
+
+
+def div():
+    divider(30)
+
+
+def subdiv():
+    divider(19)
+
+
+def title(atitle, length=30):
+    divider(length)
+    print(atitle)
+    divider(length)
