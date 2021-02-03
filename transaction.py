@@ -18,7 +18,7 @@ class Transaction:
         self.amount = amount
         self.balance_after = account.balance - amount if transaction_type is TransactionType.PAY else account.balance + amount
         self.timestamp = timestamp()
-        self.platform = platform.node()
+        self.platform = "Mobile" if platform.node() == "localhost" else platform.node()
 
         print(f"{account.name}'s Transaction no. {self.id}: {self.sign()}{amount}{settings.get_currency()}")
 
