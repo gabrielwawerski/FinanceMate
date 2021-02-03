@@ -1,13 +1,13 @@
+import json
 import os
 from enum import Enum
 from pathlib import Path
 from contextlib import closing
 import jsonpickle
-import urllib.request as request
 import requests
 import util.settings as settings
 
-path = "data/"
+path = "/htdocs/data/"
 
 
 # TODO: move up! (to data helper class?, make serializer generic?)
@@ -54,26 +54,35 @@ class Serializer:
 
 class ServerSerializer(Serializer):
     def load(self):
-        print(f"Loading {self.data_type}...", end=" ")
+        print(f"Fetching {self.data_type} ({settings.ftp_host})... ", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                data = requests.get(f"{settings.full_data_url}{self.data_type}").text
-                if data is None or data == "{}":
-                    settings.set_default_settings()
-                    print("Done.")
-                    return
+                with open(f"data/{self.file_name}", "wb") as file:
+                    settings.ftp.retrbinary(f"RETR {path}{self.file_name}", file.write)
+                    # if data is None or data == "{}":
+                    #     settings.set_default_settings()
+                    #     print("Done.")
+                    #     return
                 print("Done.")
-                return dict(jsonpickle.decode(data))
+                with open(f"data/{self.file_name}", "rb") as file:
+                    return dict(jsonpickle.decode(file.read()))
 
-    # def save(self, data):
-    #     print(f"Saving {self.data_type}...", end=" ")
-    #     for dataType in DataType:
-    #         if dataType is self.data_type:
-    #             r = requests.post(url, data)
-    #             print("Done.")
+    def save(self, data):
+        print(f"Uploading {self.data_type} ({settings.ftp_host})...", end=" ")
+        for dataType in DataType:
+            if dataType is self.data_type:
+                with open(f"data/{self.file_name}", "rb") as server_file:
+                    settings.ftp.storbinary(f"STOR htdocs/data/{self.file_name}", server_file)
+                    with open(f"data/{self.file_name}", "w") as local_file:
+                        local_file.write(jsonpickle.encode(data))
+                    print("Done.")
 
 
-serializer_type = Serializer
+def json_loads(data):
+    return json.load(data)
+
+
+serializer_type = ServerSerializer
 
 
 class SettingsSerializer(serializer_type):

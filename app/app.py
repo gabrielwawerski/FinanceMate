@@ -34,6 +34,10 @@ class Login(MenuEnum):
     # TODO: remove account
 class App:
     """
+    v0.3:
+        - Data is now stored on a server
+        - Getting and sending data to server
+
     v0.2.1:
         - Simplified account data serializing
         - Data is now saved after operations on it
@@ -55,7 +59,7 @@ class App:
         self._settings_serializer = serializer.SettingsSerializer()
         self._acc_serializer = serializer.AccountSerializer()
         self._trans_serializer = serializer.TransactionSerializer()
-        self.version = "0.2.1"
+        self.version = "0.3"
 
         self.load_data()
         self._run = True
@@ -146,18 +150,18 @@ class App:
         transactions = self._transactions.values()
         t_listing = 1
         for t in transactions:
-            val = t.sign() + str(t.amount) + get_currency()
+            trans_amout = t.sign() + str(t.amount) + get_currency()
             print(f"[{t_listing}]. {t.description:>14}")
             t_listing += 1
-            print(f"{val.rjust(19)}")
+            print(f"{trans_amout.rjust(19)}")
             print(f"Balance: {str(t.balance_after) + get_currency():>10}")
+            print(f"Info: {t.platform.rjust(13)}")
             print(f"{t.timestamp}")
             subdiv()
 
     def list_accounts(self):
         title(f"Accounts: {len(self._accounts)}")
         for a in self._accounts.values():
-            compile
             print(f"{a.name}\nBalance: {a.balance}{get_currency()}")
             print(f"Transactions: {len(self._get_acc_transactions(a))}")
             subdiv()
