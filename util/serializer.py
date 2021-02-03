@@ -1,10 +1,11 @@
 import os
 from enum import Enum
 from pathlib import Path
+from contextlib import closing
 import jsonpickle
-import urllib.request
-from app.service import server_default_settings
-from util.settings import default_settings, server_url
+import urllib.request as request
+import requests
+import util.settings as settings
 
 path = "data/"
 
@@ -27,62 +28,65 @@ class Serializer:
         self.data_type = data_type
         self.file_name = str(data_type)
 
-    def save(self, data):
-        print(f"Saving {self.data_type}...", end=" ")
-        for dataType in DataType:
-            if dataType is self.data_type:
-                with open(path + self.file_name, "w") as file:
-                    print("Done.")
-                    file.write(jsonpickle.encode(data))
-
     def load(self):
         print(f"Loading {self.data_type}...", end=" ")
         if not isfile(path + self.file_name):
+            print("File not found. Creating new file...", end=" ")
             # TODO: defaults for every file!!!
-            settings.set_default_settings()
+            with open(path + self.file_name, "r") as file:
+                file.write("{}")
             print("Done.")
             return
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(path + self.file_name, "r") as file:
                     print("Done.")
-                    return jsonpickle.decode(file.read())
+                    return dict(jsonpickle.decode(file.read()))
 
-
-class ServerSerializer(Serializer):
     def save(self, data):
         print(f"Saving {self.data_type}...", end=" ")
-        full_path = path + self.file_name
-        if not isfile(full_path):
-            print("Done.")
-            return default_settings()
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(path + self.file_name, "w") as file:
                     print("Done.")
                     file.write(jsonpickle.encode(data))
 
+
+class ServerSerializer(Serializer):
     def load(self):
         print(f"Loading {self.data_type}...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                with urllib.request.urlopen(f"{server_url}{self.data_type}") as url:
-                    data = url.read()
+                data = requests.get(f"{settings.full_data_url}{self.data_type}").text
+                if data is None or data == "{}":
+                    settings.set_default_settings()
                     print("Done.")
-                    return jsonpickle.decode(data)
+                    return
+                print("Done.")
+                return dict(jsonpickle.decode(data))
+
+    # def save(self, data):
+    #     print(f"Saving {self.data_type}...", end=" ")
+    #     for dataType in DataType:
+    #         if dataType is self.data_type:
+    #             r = requests.post(url, data)
+    #             print("Done.")
 
 
-class SettingsSerializer(Serializer):
+serializer_type = Serializer
+
+
+class SettingsSerializer(serializer_type):
     def __init__(self):
         super().__init__(DataType.SETTINGS)
 
 
-class AccountSerializer(Serializer):
+class AccountSerializer(serializer_type):
     def __init__(self):
         super().__init__(DataType.ACCOUNTS)
 
 
-class TransactionSerializer(Serializer):
+class TransactionSerializer(serializer_type):
     def __init__(self):
         super().__init__(DataType.TRANSACTIONS)
 

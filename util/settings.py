@@ -4,6 +4,7 @@ import jsonpickle
 
 
 # default settings
+from util.serializer import Serializer
 
 acc_uid = {"acc_uid": 0}
 trans_uid = {"trans_uid": 0}
@@ -20,7 +21,7 @@ full_data_url = server_url + data_dir
 
 class Settings:
     def __init__(self):
-        self.settings = {}
+        self.settings = dict()
 
     def get_setting(self, name):
         return self.settings[name]
@@ -39,7 +40,7 @@ class Settings:
         for k, v in args.items():
             self.settings[k] = v
 
-    def get(self):
+    def __call__(self, *args, **kwargs):
         return self.settings
 
     def load(self, settings):
@@ -55,7 +56,7 @@ def set_default_settings():
 
 def server_default_settings():
     data = requests.get(f"{full_data_url}{default_settings}").text
-    return jsonpickle.decode(data)
+    return dict(jsonpickle.decode(data))
 
 
 def get_acc_uid():
