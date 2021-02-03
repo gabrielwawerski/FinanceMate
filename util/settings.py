@@ -84,7 +84,6 @@ class IdType(Enum):
     TRANS_UID = 1
 
     def __str__(self):
-        print(self.name.lower())
         return self.name.lower()
 
 

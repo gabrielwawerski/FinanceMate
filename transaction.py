@@ -20,7 +20,7 @@ class Transaction:
         self.timestamp = timestamp()
         self.platform = platform.node()
 
-        print(f"{self.account_id}'s Transaction no. {self.id}: {self.sign()}{amount}{settings.get_currency()}")
+        print(f"{account.name}'s Transaction no. {self.id}: {self.sign()}{amount}{settings.get_currency()}")
 
     def sign(self):
         return "-" if self.transaction_type is TransactionType.PAY.value else "+"
