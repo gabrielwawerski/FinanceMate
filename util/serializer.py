@@ -71,11 +71,12 @@ class ServerSerializer(Serializer):
         print(f"Uploading {self.data_type} ({settings.ftp_host})...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                with open(f"data/{self.file_name}", "rb") as server_file:
-                    settings.ftp.storbinary(f"STOR htdocs/data/{self.file_name}", server_file)
                 with open(f"data/{self.file_name}", "w") as local_file:
                     local_file.write(jsonpickle.encode(data))
                     print("Done.")
+
+                with open(f"data/{self.file_name}", "rb") as server_file:
+                    settings.ftp.storbinary(f"STOR htdocs/data/{self.file_name}", server_file)
 
 
 def json_loads(data):
