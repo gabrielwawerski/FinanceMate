@@ -57,8 +57,8 @@ class ServerSerializer(Serializer):
         print(f"Fetching {self.data_type} ({settings.ftp_host})... ", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                with open(f"data/{self.file_name}", "wb") as file:
-                    settings.ftp.retrbinary(f"RETR {path}{self.file_name}", file.write)
+                with open(f"data/{self.file_name}", "wb") as server_file:
+                    settings.ftp.retrbinary(f"RETR {path}{self.file_name}", server_file.write)
                     # if data is None or data == "{}":
                     #     settings.set_default_settings()
                     #     print("Done.")
@@ -73,8 +73,8 @@ class ServerSerializer(Serializer):
             if dataType is self.data_type:
                 with open(f"data/{self.file_name}", "rb") as server_file:
                     settings.ftp.storbinary(f"STOR htdocs/data/{self.file_name}", server_file)
-                    with open(f"data/{self.file_name}", "w") as local_file:
-                        local_file.write(jsonpickle.encode(data))
+                with open(f"data/{self.file_name}", "w") as local_file:
+                    local_file.write(jsonpickle.encode(data))
                     print("Done.")
 
 

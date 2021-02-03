@@ -18,9 +18,7 @@ class Transaction:
         self.amount = amount
         self.balance_after = account.balance - amount if transaction_type is TransactionType.PAY else account.balance + amount
         self.timestamp = timestamp()
-        import socket as s
-
-        self.platform = s.getfqdn("localhost")
+        self.platform = platform.node()
 
         print(f"{account.name}'s Transaction no. {self.id}: {self.sign()}{amount}{settings.get_currency()}")
 
