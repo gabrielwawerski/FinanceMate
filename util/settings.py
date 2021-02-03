@@ -1,7 +1,8 @@
 from enum import Enum
 import requests
 import jsonpickle
-
+import ftplib
+from util.serializer import Serializer
 
 # default settings
 from util.serializer import Serializer
