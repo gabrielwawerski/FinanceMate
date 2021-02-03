@@ -21,7 +21,7 @@ full_data_url = server_url + data_dir
 
 class Settings:
     def __init__(self):
-        self.settings = dict()
+        self.settings = {}
 
     def get_setting(self, name):
         return self.settings[name]

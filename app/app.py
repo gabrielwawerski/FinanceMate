@@ -49,8 +49,8 @@ class App:
     """
     def __init__(self):
         self._settings = app_settings
-        self._accounts = dict()
-        self._transactions = dict()
+        self._accounts = {}
+        self._transactions = {}
 
         self._settings_serializer = serializer.SettingsSerializer()
         self._acc_serializer = serializer.AccountSerializer()
