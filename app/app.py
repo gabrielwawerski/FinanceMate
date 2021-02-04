@@ -1,3 +1,4 @@
+import ftplib
 from account import Account
 from transaction import PayTransaction, AddTransaction, TransactionType
 import util.serializer as serializer
@@ -63,6 +64,7 @@ class App:
 
         self.load_data()
         self._run = True
+
 
     def login(self):
         pass
@@ -149,15 +151,18 @@ class App:
         title(f"{account.name}({account.balance}{get_currency()})\nTransactions: {len(self._get_acc_transactions(account))}", 45)
         transactions = self._transactions.values()
         t_listing = 1
+        # todo: move?
         for t in transactions:
             trans_amout = t.sign() + str(t.amount) + get_currency()
-            print(f"[{t_listing}]. {t.description:>14}")
+            print(f"{t.name} {t_listing:>17}")
             t_listing += 1
-            print(f"{trans_amout.rjust(19)}")
-            print(f"Balance: {str(t.balance_after) + get_currency():>10}")
-            print(f"Info: {t.platform.rjust(13)}")
+            print(f"{trans_amout.rjust(30)}")
+            print(t.description)
+            print(f"Balance: {str(t.balance_after) + get_currency():>21}")
+            print(f"User: {t.platform.rjust(24)}")
+            print(f"OS: {t.os.rjust(26)}")
             print(f"{t.timestamp}")
-            subdiv()
+            div()
 
     def list_accounts(self):
         title(f"Accounts: {len(self._accounts)}")

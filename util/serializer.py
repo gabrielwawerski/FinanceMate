@@ -7,7 +7,8 @@ import jsonpickle
 import requests
 import util.settings as settings
 
-path = "/htdocs/data/"
+local_path = "data/"
+server_path = "/htdocs/data/"
 
 
 # TODO: move up! (to data helper class?, make serializer generic?)
@@ -27,19 +28,20 @@ class Serializer:
     def __init__(self, data_type):
         self.data_type = data_type
         self.file_name = str(data_type)
+        self.path = local_path + self.file_name
 
     def load(self):
         print(f"Loading {self.data_type}...", end=" ")
-        if not isfile(path + self.file_name):
+        if not isfile(self.path):
             print("File not found. Creating new file...", end=" ")
             # TODO: defaults for every file!!!
-            with open(path + self.file_name, "r") as file:
+            with open(self.path, "r") as file:
                 file.write("{}")
             print("Done.")
             return
         for dataType in DataType:
             if dataType is self.data_type:
-                with open(path + self.file_name, "r") as file:
+                with open(self.path, "r") as file:
                     print("Done.")
                     return dict(jsonpickle.decode(file.read()))
 
@@ -47,7 +49,7 @@ class Serializer:
         print(f"Saving {self.data_type}...", end=" ")
         for dataType in DataType:
             if dataType is self.data_type:
-                with open(path + self.file_name, "w") as file:
+                with open(self.path, "w") as file:
                     print("Done.")
                     file.write(jsonpickle.encode(data))
 
@@ -58,7 +60,7 @@ class ServerSerializer(Serializer):
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(f"data/{self.file_name}", "wb") as server_file:
-                    settings.ftp.retrbinary(f"RETR {path}{self.file_name}", server_file.write)
+                    settings.ftp.retrbinary(f"RETR {local_path}{self.file_name}", server_file.write)
                     # if data is None or data == "{}":
                     #     settings.set_default_settings()
                     #     print("Done.")
@@ -83,7 +85,7 @@ def json_loads(data):
     return json.load(data)
 
 
-serializer_type = ServerSerializer
+serializer_type = Serializer
 
 
 class SettingsSerializer(serializer_type):
@@ -107,11 +109,16 @@ def isfile(file_name):
 
 def mkfile(file_name):
     try:
-        file_path = Path(path + file_name).resolve(strict=True)
+        file_path = Path(local_path + file_name).resolve(strict=True)
     except FileNotFoundError:
-        if not os.path.isfile(path + file_name):
+        if not os.path.isfile(local_path + file_name):
             print(f"Loading default settings...")
-            with open(path + file_name, "w+") as f:
+            with open(local_path + file_name, "w+") as f:
                 f.write(settings.server_default_settings())
     else:
         print(f"Already exists, omitting: {file_name}")
+
+
+def wipe_transactions():
+    with open(local_path + "transactions.json", "w") as f:
+        f.write("{}")

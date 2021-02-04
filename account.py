@@ -3,7 +3,7 @@ import util.settings as settings
 
 class Account:
     def __init__(self, name='Client', account_balance=0):
-        self.id = settings.AccountID()()
+        self.id = settings.next_acc_id()
         self.name = name
         self.balance = account_balance
 

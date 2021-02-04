@@ -9,7 +9,7 @@ from util.serializer import Serializer
 
 acc_uid = {"acc_uid": 0}
 trans_uid = {"trans_uid": 0}
-currency = {"currency": "Â£"}
+currency = {"currency": "£"}
 max_balance = {"max_balance": 9999999999999999}
 timeout = {"timeout": 10}
 
@@ -49,6 +49,7 @@ class Settings:
 
 
 app_settings = Settings()
+serializer_type = Serializer
 
 
 def set_default_settings():
@@ -80,29 +81,13 @@ def get_timeout():
     return app_settings.get_setting("timeout")
 
 
-class IdType(Enum):
-    ACC_UID = 0
-    TRANS_UID = 1
-
-    def __str__(self):
-        return self.name.lower()
+def next_trans_id():
+    _trans_uid = get_trans_uid()
+    app_settings.set_setting("trans_uid", _trans_uid + 1)
+    return int(_trans_uid)
 
 
-class ID:
-    def __init__(self, id_type):
-        self.id_type = str(id_type)
-
-    def __call__(self, *args, **kwargs):
-        uid = app_settings.get_setting(self.id_type)
-        app_settings.set_setting(self.id_type, uid + 1)
-        return uid
-
-
-class AccountID(ID):
-    def __init__(self):
-        super(AccountID, self).__init__(IdType.ACC_UID)
-
-
-class TransactionID(ID):
-    def __init__(self):
-        super(TransactionID, self).__init__(IdType.TRANS_UID)
+def next_acc_id():
+    _acc_uid = get_acc_uid()
+    app_settings.set_setting("acc_uid", _acc_uid + 1)
+    return _acc_uid

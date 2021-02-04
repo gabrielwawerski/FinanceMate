@@ -10,15 +10,17 @@ class TransactionType(Enum):
 
 
 class Transaction:
-    def __init__(self, account, amount, transaction_type, description="description"):
-        self.id = settings.TransactionID()()
+    def __init__(self, account, amount, transaction_type, name="Transaction name", description="Short transaction description"):
+        self.id = settings.next_trans_id()
         self.transaction_type = transaction_type.value
+        self.name = name
         self.description = description
         self.account_id = account.id
         self.amount = amount
         self.balance_after = account.balance - amount if transaction_type is TransactionType.PAY else account.balance + amount
         self.timestamp = timestamp()
         self.platform = "Mobile" if platform.node() == "localhost" else platform.node()
+        self.os = platform.platform()
 
         print(f"{account.name}'s Transaction no. {self.id}: {self.sign()}{amount}{settings.get_currency()}")
 
