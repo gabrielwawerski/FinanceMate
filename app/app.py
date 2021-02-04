@@ -154,7 +154,7 @@ class App:
         # todo: move?
         for t in transactions:
             trans_amout = t.sign() + str(t.amount) + get_currency()
-            print(f"{t.name} {t_listing:>17}")
+            print(f"{t.name} {t_listing:>13}")
             t_listing += 1
             print(f"{trans_amout.rjust(30)}")
             print(t.description)

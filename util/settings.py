@@ -5,7 +5,6 @@ import ftplib
 from util.serializer import Serializer
 
 # default settings
-from util.serializer import Serializer
 
 acc_uid = {"acc_uid": 0}
 trans_uid = {"trans_uid": 0}
