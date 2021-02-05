@@ -2,8 +2,11 @@ import numpy
 from datetime import datetime
 
 
-def format_number(number):
-    return numpy.format_float_positional(float(number), 3, trim="-")
+def fname(number):
+    """Converts argument to float and formats it's decimal precision to 2
+    :return:float with dec. precision = 2
+    """
+    return numpy.format_float_positional(float(number), 2, trim="-")
 
 
 def timestamp():

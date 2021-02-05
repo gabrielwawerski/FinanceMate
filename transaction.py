@@ -1,7 +1,7 @@
-from datetime import datetime
+import platform
 from enum import Enum
 import util.settings as settings
-import platform
+from util.utils import timestamp
 
 
 class TransactionType(Enum):
@@ -10,14 +10,15 @@ class TransactionType(Enum):
 
 
 class Transaction:
-    def __init__(self, account, amount, transaction_type, name="Transaction name", description="Short transaction description"):
-        self.id = settings.next_trans_id()
+    def __init__(self, uid, account, amount, transaction_type, name="Transaction name", description="Short transaction description"):
+        self.id = uid
         self.transaction_type = transaction_type.value
         self.name = name
         self.description = description
         self.account_id = account.id
-        self.amount = amount
-        self.balance_after = account.balance - amount if transaction_type is TransactionType.PAY else account.balance + amount
+        self.amount = float(amount)
+        _acc_bal = float(account.balance)
+        self.balance_after = _acc_bal - self.amount if transaction_type is TransactionType.PAY else _acc_bal + self.amount
         self.timestamp = timestamp()
         self.platform = "Mobile" if platform.node() == "localhost" else platform.node()
         self.os = platform.platform()
@@ -36,27 +37,10 @@ class Transaction:
 
 
 class PayTransaction(Transaction):
-    def __init__(self, account, amount):
-        super().__init__(account, amount, TransactionType.PAY)
+    def __init__(self, uid, account, amount):
+        super().__init__(uid, account, amount, TransactionType.PAY)
 
 
 class AddTransaction(Transaction):
-    def __init__(self, account, amount):
-        super().__init__(account, amount, TransactionType.ADD)
-
-
-def timestamp():
-    dt = datetime.now()
-    hour, minute, second, day, month = _format_date_time(dt.hour, dt.minute, dt.second, dt.day, dt.month)
-    return f"{hour}:{minute}:{second} {day}.{month}.{dt.year}"
-
-
-def _format_date_time(*data):
-    fdata = list()
-    for d in data:
-        if d <= 9:
-            d = str(d)
-            fdata.append(d.replace(d, f"0{d}"))  # if value is below 9, insert 0 for proper formatting.
-        else:
-            fdata.append(str(d))
-    return tuple(fdata)
+    def __init__(self, uid, account, amount):
+        super().__init__(uid, account, amount, TransactionType.ADD)

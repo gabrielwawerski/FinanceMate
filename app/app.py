@@ -1,8 +1,11 @@
-import ftplib
+from enum import Enum
+
+import app.service
+import util.settings as settings
+import util.serializer as serializer
+from util.utils import fname as fnum
 from account import Account
 from transaction import PayTransaction, AddTransaction, TransactionType
-import util.serializer as serializer
-from util.settings import *
 
 
 class MenuEnum(Enum):
@@ -26,7 +29,14 @@ class Login(MenuEnum):
     pass
 
 
-# TODO: save data to server
+def inpt():
+    return input("> ")
+
+
+def finpt():
+    return float(inpt())
+
+
 # TODO: Account Viewer: class that holds one account at a time. Can perform operations on it (adding transactions etc.)
 #       Helper class so App's methods dealing with accounts doesn't need individual accounts.
 # TODO: move methods operating on accounts from here? to account viewer?
@@ -53,18 +63,19 @@ class App:
         - Added Serializer class for easy data storing/loading to/from .json
     """
     def __init__(self):
-        self._settings = app_settings
+        # todo: move settings, data handling to service.py? i think
+        self._settings = settings.app_settings
         self._accounts = {}
         self._transactions = {}
-
         self._settings_serializer = serializer.SettingsSerializer()
         self._acc_serializer = serializer.AccountSerializer()
         self._trans_serializer = serializer.TransactionSerializer()
         self.version = "0.3"
 
         self.load_data()
-        self._run = True
 
+        self.currency = settings.get_currency()
+        self._run = True
 
     def login(self):
         pass
@@ -76,42 +87,47 @@ class App:
                 print(f"{option.value}. {str(option)}")
 
         account = self.get_account('Gabriel Wawerski')
-
         print(f"FinanceMate v{self.version}")
         print_main_menu()
-        selection = int(input("> "))
+        selection = int(inpt())
+
         while self._run:
             if selection is MainMenu.ADD_TRANSACTION.value:
                 print("How much did you pay?")
-                amount = int(input("> "))
+                amount = finpt()
                 self.new_transaction(account, amount, TransactionType.PAY)
+
             elif selection is MainMenu.ADD_BALANCE.value:
-                print("How much did you cash in?")
-                amount = int(input("> "))
+                print("How much did you deposit?")
+                amount = finpt()
                 self.new_transaction(account, amount, TransactionType.ADD)
+
             elif selection is MainMenu.ACCOUNT_INFO.value:
                 self.account_info(account)
+
             elif selection is MainMenu.LIST_TRANSACTIONS.value:
                 self.list_transactions(account)
+
             elif selection is MainMenu.LIST_ACCOUNTS.value:
                 self.list_accounts()
+
             elif selection is MainMenu.ADD_ACCOUNT.value:
                 print("Create a new Account:")
                 print("Account Name:", end=" ")
-                acc_name = input("> ")
+                acc_name = inpt()
                 print("Balance (default 0):", end=" ")
-                acc_balance = input("> ")
+                acc_balance = inpt()
                 if acc_balance == "" or acc_balance == " ":
                     acc_balance = 0
-                else:
-                    acc_balance = int(acc_balance)
-
                 self.new_account(acc_name, acc_balance)
+
             elif selection is MainMenu.DEFAULT_SETTINGS.value:
-                set_default_settings()
+                settings.set_default_settings()
                 self.save_settings()
+
             elif selection is MainMenu.EXIT.value:
                 self.quit()
+
             else:
                 print("else!")
 
@@ -120,17 +136,16 @@ class App:
 
     def new_transaction(self, account, amount, transaction_type):
         if transaction_type is TransactionType.PAY:
-            pay_trans = PayTransaction(account, amount)
+            trans = PayTransaction(settings.get_trans_uid(), account, amount)
             self._sub_acc_bal(account, amount)
-            self._add_transaction(pay_trans)
-            print(f"Current balance: {account.balance}{get_currency()}")
-            return pay_trans
+            self._add_transaction(trans)
+            print(f"Current balance: {fnum(account.balance)}{self.currency}")
+
         elif transaction_type is TransactionType.ADD:
-            add_trans = AddTransaction(account, amount)
+            add_trans = AddTransaction(settings.get_trans_uid(), account, amount)
             self._add_acc_bal(account, amount)
             self._add_transaction(add_trans)
-            print(f"Current balance: {account.balance}{get_currency()}")
-            return add_trans
+            print(f"Current balance: {fnum(account.balance)}{self.currency}")
 
     def _add_transaction(self, transaction):
         self._transactions[f'{transaction.get_id()}'] = transaction  # add new transaction to db
@@ -138,28 +153,27 @@ class App:
         self.save_settings()
 
     def get_account(self, accountName):
-        """doc"""
         return self._accounts.get(accountName)
 
     def account_info(self, account):
         title("Account info:")
         print(f"{account.name}")
-        print(f"Balance: {account.balance}{get_currency()}")
+        print(f"Balance: {fnum(account.balance)}{self.currency}")
         print(f"Transactions: {len(self._get_acc_transactions(account))}")
 
     def list_transactions(self, account):
-        title(f"{account.name}({account.balance}{get_currency()})\nTransactions: {len(self._get_acc_transactions(account))}", 45)
+        title(f"{account.name}({account.balance}{self.currency})\nTransactions: {len(self._get_acc_transactions(account))}", 45)
         transactions = self._transactions.values()
         t_listing = 1
         # todo: move?
         for t in transactions:
-            trans_amout = t.sign() + str(t.amount) + get_currency()
+            trans_amout = t.sign() + fnum(t.amount) + self.currency
             print(f"{t.name} {t_listing:>13}")
             t_listing += 1
             print(f"{trans_amout.rjust(30)}")
             print(t.description)
-            print(f"Balance: {str(t.balance_after) + get_currency():>21}")
-            print(f"User: {t.platform.rjust(24)}")
+            print(f"Balance: {fnum(t.balance_after) + self.currency:>21}")
+            print(f"Device: {t.platform.rjust(22)}")
             print(f"OS: {t.os.rjust(26)}")
             print(f"{t.timestamp}")
             div()
@@ -167,14 +181,14 @@ class App:
     def list_accounts(self):
         title(f"Accounts: {len(self._accounts)}")
         for a in self._accounts.values():
-            print(f"{a.name}\nBalance: {a.balance}{get_currency()}")
+            print(f"{a.name}\nBalance: {fnum(a.balance)}{self.currency}")
             print(f"Transactions: {len(self._get_acc_transactions(a))}")
             subdiv()
 
     def new_account(self, name, balance):
-        account = Account(name, balance)
+        account = Account(settings.next_acc_id(), name, balance)
         self._accounts[account.name] = account
-        print(f"Account: {account.name}, Balance: {account.balance}{get_currency()}")
+        print(f"Account: {account.name}, Balance: {fnum(account.balance)}{self.currency}")
         print("Account Created Succesfully.")
         self.save_accounts()
         self.save_settings()
