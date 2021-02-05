@@ -1,20 +1,6 @@
-from enum import Enum
-import requests
-import jsonpickle
-import ftplib
-from util.serializer import Serializer
-
-# default settings
-
-acc_uid = {"acc_uid": 0}
-trans_uid = {"trans_uid": 0}
-currency = {"currency": "£"}
-max_balance = {"max_balance": 9999999999999999}
-timeout = {"timeout": 10}
-
-
 server_url = "https://gabrielwawerski.github.io/FinanceMate/"
 data_dir = "data/"
+full_data_url = server_url + data_dir
 default_settings = "settings_default.json"
 full_data_url = server_url + data_dir
 
@@ -36,7 +22,7 @@ class Settings:
     def add_setting(self, setting, value):
         self.settings[setting] = value
 
-    def _add_setting(self, **args):
+    def _add_settings(self, **args):
         for k, v in args.items():
             self.settings[k] = v
 
@@ -48,14 +34,28 @@ class Settings:
 
 
 app_settings = Settings()
-serializer_type = Serializer
+
+
+def next_acc_id():
+    _acc_uid = get_acc_uid()
+    app_settings.set_setting("acc_uid", _acc_uid + 1)
+    return _acc_uid
+
+
+def next_trans_id():
+    _trans_uid = get_trans_uid()
+    app_settings.set_setting("trans_uid", _trans_uid + 1)
+    return int(_trans_uid)
 
 
 def set_default_settings():
-    app_settings.load(server_default_settings())
+    app_settings.load(from_server())
 
 
-def server_default_settings():
+def from_server():
+    import requests
+    import jsonpickle
+
     data = requests.get(f"{full_data_url}{default_settings}").text
     return dict(jsonpickle.decode(data))
 
@@ -78,15 +78,3 @@ def get_max_balance():
 
 def get_timeout():
     return app_settings.get_setting("timeout")
-
-
-def next_trans_id():
-    _trans_uid = get_trans_uid()
-    app_settings.set_setting("trans_uid", _trans_uid + 1)
-    return int(_trans_uid)
-
-
-def next_acc_id():
-    _acc_uid = get_acc_uid()
-    app_settings.set_setting("acc_uid", _acc_uid + 1)
-    return _acc_uid

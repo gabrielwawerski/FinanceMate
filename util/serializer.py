@@ -2,10 +2,10 @@ import json
 import os
 from enum import Enum
 from pathlib import Path
-from contextlib import closing
 import jsonpickle
-import requests
+from app.service import ftp
 import util.settings as settings
+
 
 local_path = "data/"
 server_path = "/htdocs/data/"
@@ -60,7 +60,7 @@ class ServerSerializer(Serializer):
         for dataType in DataType:
             if dataType is self.data_type:
                 with open(f"data/{self.file_name}", "wb") as server_file:
-                    settings.ftp.retrbinary(f"RETR {local_path}{self.file_name}", server_file.write)
+                    ftp.retrbinary(f"RETR {local_path}{self.file_name}", server_file.write)
                     # if data is None or data == "{}":
                     #     settings.set_default_settings()
                     #     print("Done.")
@@ -78,7 +78,7 @@ class ServerSerializer(Serializer):
                     print("Done.")
 
                 with open(f"data/{self.file_name}", "rb") as server_file:
-                    settings.ftp.storbinary(f"STOR htdocs/data/{self.file_name}", server_file)
+                    ftp.storbinary(f"STOR htdocs/data/{self.file_name}", server_file)
 
 
 def json_loads(data):
@@ -114,7 +114,7 @@ def mkfile(file_name):
         if not os.path.isfile(local_path + file_name):
             print(f"Loading default settings...")
             with open(local_path + file_name, "w+") as f:
-                f.write(settings.server_default_settings())
+                f.write(settings.from_server())
     else:
         print(f"Already exists, omitting: {file_name}")
 
