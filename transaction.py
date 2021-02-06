@@ -1,12 +1,16 @@
 import platform
 from enum import Enum
 import util.settings as settings
+import app.service as service
 from util.utils import timestamp
 
 
 class TransactionType(Enum):
     ADD = 1
     PAY = 2
+
+    def __str__(self):
+        return self.name.lower()
 
 
 class Transaction:
@@ -16,16 +20,19 @@ class Transaction:
         self.name = name
         self.description = description
         self.account_id = account.id
-        self.amount = float(amount)
-        _acc_bal = float(account.balance)
-        self.balance_after = _acc_bal - self.amount if transaction_type is TransactionType.PAY else _acc_bal + self.amount
-        self.timestamp = timestamp()
+        self.amount = f"{amount:.2f}"
+
+        _acc_bal, amt = float(account.balance), float(self.amount)
+        self.balance_after = "{:.2f}".format(_acc_bal) if transaction_type is TransactionType.PAY else "{:.2f}".format(_acc_bal)
+
+        self.sign = self._sign()
         self.platform = "Mobile" if platform.node() == "localhost" else platform.node()
         self.os = platform.platform()
+        self.timestamp = timestamp()
 
-        print(f"{account.name}'s Transaction no. {self.id}: {self.sign()}{amount}{settings.get_currency()}")
+        print(f"{account.name}'s Transaction no. {self.id}: {self._sign()}{amount}{service.service.get_currency()}")
 
-    def sign(self):
+    def _sign(self):
         return "-" if self.transaction_type is TransactionType.PAY.value else "+"
 
     def get_id(self):

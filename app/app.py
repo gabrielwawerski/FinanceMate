@@ -1,11 +1,9 @@
 from enum import Enum
 
-import app.service
 import util.settings as settings
+import app.service as service
 import util.serializer as serializer
 from util.utils import fname as fnum
-from account import Account
-from transaction import PayTransaction, AddTransaction, TransactionType
 
 
 class MenuEnum(Enum):
@@ -42,7 +40,7 @@ def finpt():
 # TODO: move methods operating on accounts from here? to account viewer?
 # TODO: login
 # TODO: admin panel
-    # TODO: remove account
+# TODO: remove account
 class App:
     """
     v0.3:
@@ -62,19 +60,20 @@ class App:
     v0.1:
         - Added Serializer class for easy data storing/loading to/from .json
     """
+
     def __init__(self):
         # todo: move settings, data handling to service.py? i think
-        self._settings = settings.app_settings
         self._accounts = {}
         self._transactions = {}
-        self._settings_serializer = serializer.SettingsSerializer()
-        self._acc_serializer = serializer.AccountSerializer()
-        self._trans_serializer = serializer.TransactionSerializer()
+        self._settings = settings.app_settings
+        self.service = service.service
+
+        self._settings_serializer = serializer.ServerSerializer("settings")
+        self._acc_serializer = serializer.ServerSerializer("accounts")
+        self._trans_serializer = serializer.ServerSerializer("transactions")
         self.version = "0.3"
-
         self.load_data()
-
-        self.currency = settings.get_currency()
+        self.currency = self.service.get_currency()
         self._run = True
 
     def login(self):
@@ -95,12 +94,12 @@ class App:
             if selection is MainMenu.ADD_TRANSACTION.value:
                 print("How much did you pay?")
                 amount = finpt()
-                self.new_transaction(account, amount, TransactionType.PAY)
+                self.new_transaction(account, amount, "pay")
 
             elif selection is MainMenu.ADD_BALANCE.value:
                 print("How much did you deposit?")
                 amount = finpt()
-                self.new_transaction(account, amount, TransactionType.ADD)
+                self.new_transaction(account, amount, "add")
 
             elif selection is MainMenu.ACCOUNT_INFO.value:
                 self.account_info(account)
@@ -116,13 +115,13 @@ class App:
                 print("Account Name:", end=" ")
                 acc_name = inpt()
                 print("Balance (default 0):", end=" ")
-                acc_balance = inpt()
+                acc_balance = finpt()
                 if acc_balance == "" or acc_balance == " ":
                     acc_balance = 0
                 self.new_account(acc_name, acc_balance)
 
             elif selection is MainMenu.DEFAULT_SETTINGS.value:
-                settings.set_default_settings()
+                self.service.set_default_settings()
                 self.save_settings()
 
             elif selection is MainMenu.EXIT.value:
@@ -135,19 +134,12 @@ class App:
             selection = int(input("> "))
 
     def new_transaction(self, account, amount, transaction_type):
-        if transaction_type is TransactionType.PAY:
-            trans = PayTransaction(settings.get_trans_uid(), account, amount)
-            self._sub_acc_bal(account, amount)
-            self._add_transaction(trans)
-            print(f"Current balance: {fnum(account.balance)}{self.currency}")
-
-        elif transaction_type is TransactionType.ADD:
-            add_trans = AddTransaction(settings.get_trans_uid(), account, amount)
-            self._add_acc_bal(account, amount)
-            self._add_transaction(add_trans)
-            print(f"Current balance: {fnum(account.balance)}{self.currency}")
+        with service.transaction(account, amount, transaction_type) as transaction:
+            self._add_transaction(transaction)
+        print(f"Current balance: {fnum(account.balance)}{self.currency}")
 
     def _add_transaction(self, transaction):
+        print(f"trans id: {transaction.get_id()}")
         self._transactions[f'{transaction.get_id()}'] = transaction  # add new transaction to db
         self.save_transactions()
         self.save_settings()
@@ -162,12 +154,14 @@ class App:
         print(f"Transactions: {len(self._get_acc_transactions(account))}")
 
     def list_transactions(self, account):
-        title(f"{account.name}({account.balance}{self.currency})\nTransactions: {len(self._get_acc_transactions(account))}", 45)
+        title(
+            f"{account.name}({account.balance}{self.currency})\nTransactions: {len(self._get_acc_transactions(account))}",
+            45)
         transactions = self._transactions.values()
         t_listing = 1
         # todo: move?
         for t in transactions:
-            trans_amout = t.sign() + fnum(t.amount) + self.currency
+            trans_amout = t.sign + fnum(t.amount) + self.currency
             print(f"{t.name} {t_listing:>13}")
             t_listing += 1
             print(f"{trans_amout.rjust(30)}")
@@ -186,9 +180,9 @@ class App:
             subdiv()
 
     def new_account(self, name, balance):
-        account = Account(settings.next_acc_id(), name, balance)
-        self._accounts[account.name] = account
-        print(f"Account: {account.name}, Balance: {fnum(account.balance)}{self.currency}")
+        with service.account(name, balance) as acc:
+            self._accounts[acc.name] = acc
+        print(f"Account: {acc.name}, Balance: {fnum(acc.balance)}{self.service.get_currency()}")
         print("Account Created Succesfully.")
         self.save_accounts()
         self.save_settings()
@@ -199,14 +193,6 @@ class App:
             if t.account_id == account.id:
                 transactions.append(t)
         return tuple(transactions)
-
-    @staticmethod
-    def _add_acc_bal(account, amount):
-        account.add_balance(amount)
-
-    @staticmethod
-    def _sub_acc_bal(account, amount):
-        account.sub_balance(amount)
 
     def save_data(self):
         self.save_settings()
@@ -222,10 +208,19 @@ class App:
     def save_transactions(self):
         self._trans_serializer.save(self._transactions)
 
-    def load_data(self):
+    def load_settings(self):
         self._settings.load(self._settings_serializer.load())
+
+    def load_transactions(self):
         self._transactions = self._trans_serializer.load()
+
+    def load_accounts(self):
         self._accounts = self._acc_serializer.load()
+
+    def load_data(self):
+        self.load_settings()
+        self.load_transactions()
+        self.load_accounts()
 
         if self._settings is None:
             self._transactions = {}

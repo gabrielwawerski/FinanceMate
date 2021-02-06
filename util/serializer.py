@@ -3,9 +3,8 @@ import os
 from enum import Enum
 from pathlib import Path
 import jsonpickle
-from app.service import ftp
+import app.service as service
 import util.settings as settings
-
 
 local_path = "data/"
 server_path = "/htdocs/data/"
@@ -27,58 +26,55 @@ class DataType(Enum):
 class Serializer:
     def __init__(self, data_type):
         self.data_type = data_type
-        self.file_name = str(data_type)
+
+        self.file_name = data_type + ".json"
         self.path = local_path + self.file_name
 
     def load(self):
         print(f"Loading {self.data_type}...", end=" ")
-        if not isfile(self.path):
-            print("File not found. Creating new file...", end=" ")
-            # TODO: defaults for every file!!!
-            with open(self.path, "r") as file:
-                file.write("{}")
+        # if not isfile(self.path):
+        #     print("File not found. Creating new file...", end=" ")
+        #     # TODO: defaults for every file!!!
+        #     with open(self.path, "r") as file:
+        #         file.write("{}")
+        #     print("Done.")
+        #     return
+        with open(self.path, "r") as file:
             print("Done.")
-            return
-        for dataType in DataType:
-            if dataType is self.data_type:
-                with open(self.path, "r") as file:
-                    print("Done.")
-                    return dict(jsonpickle.decode(file.read()))
+            return dict(jsonpickle.decode(file.read()))
 
     def save(self, data):
         print(f"Saving {self.data_type}...", end=" ")
-        for dataType in DataType:
-            if dataType is self.data_type:
-                with open(self.path, "w") as file:
-                    print("Done.")
-                    file.write(jsonpickle.encode(data))
+        with open(self.path, "w") as file:
+            print("Done.")
+            file.write(jsonpickle.encode(data))
 
 
+# TODO: refactor
 class ServerSerializer(Serializer):
+    def __init__(self, data_type):
+        super().__init__(data_type)
+
     def load(self):
         print(f"Fetching {self.data_type} ({settings.ftp_host})... ", end=" ")
-        for dataType in DataType:
-            if dataType is self.data_type:
-                with open(f"data/{self.file_name}", "wb") as server_file:
-                    ftp.retrbinary(f"RETR {local_path}{self.file_name}", server_file.write)
-                    # if data is None or data == "{}":
-                    #     settings.set_default_settings()
-                    #     print("Done.")
-                    #     return
-                print("Done.")
-                with open(f"data/{self.file_name}", "rb") as file:
-                    return dict(jsonpickle.decode(file.read()))
+        with open(f"data/{self.file_name}", "wb") as server_file:
+            service.ftp.retrbinary(f"RETR {server_path}{self.file_name}", server_file.write)
+            # if data is None or data == "{}":
+            #     settings.set_default_settings()
+            #     print("Done.")
+            #     return
+        print("Done.")
+        with open(f"data/{self.file_name}", "rb") as file:
+            return dict(jsonpickle.decode(file.read()))
 
     def save(self, data):
         print(f"Uploading {self.data_type} ({settings.ftp_host})...", end=" ")
-        for dataType in DataType:
-            if dataType is self.data_type:
-                with open(f"data/{self.file_name}", "w") as local_file:
-                    local_file.write(jsonpickle.encode(data))
-                    print("Done.")
+        with open(f"data/{self.file_name}", "w") as local_file:
+            local_file.write(jsonpickle.encode(data))
 
-                with open(f"data/{self.file_name}", "rb") as server_file:
-                    ftp.storbinary(f"STOR htdocs/data/{self.file_name}", server_file)
+        with open(f"data/{self.file_name}", "rb") as server_file:
+            service.ftp.storbinary(f"STOR /{server_path}{self.file_name}", server_file)
+        print("Done.")
 
 
 def json_loads(data):
@@ -86,21 +82,6 @@ def json_loads(data):
 
 
 serializer_type = Serializer
-
-
-class SettingsSerializer(serializer_type):
-    def __init__(self):
-        super().__init__(DataType.SETTINGS)
-
-
-class AccountSerializer(serializer_type):
-    def __init__(self):
-        super().__init__(DataType.ACCOUNTS)
-
-
-class TransactionSerializer(serializer_type):
-    def __init__(self):
-        super().__init__(DataType.TRANSACTIONS)
 
 
 def isfile(file_name):
