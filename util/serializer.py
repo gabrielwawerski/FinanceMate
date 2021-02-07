@@ -32,13 +32,6 @@ class Serializer:
 
     def load(self):
         print(f"Loading {self.data_type}...", end=" ")
-        # if not isfile(self.path):
-        #     print("File not found. Creating new file...", end=" ")
-        #     # TODO: defaults for every file!!!
-        #     with open(self.path, "r") as file:
-        #         file.write("{}")
-        #     print("Done.")
-        #     return
         with open(self.path, "r") as file:
             print("Done.")
             return dict(jsonpickle.decode(file.read()))
@@ -59,10 +52,6 @@ class ServerSerializer(Serializer):
         print(f"Fetching {self.data_type} ({settings.ftp_host})... ", end=" ")
         with open(f"data/{self.file_name}", "wb") as server_file:
             service.ftp.retrbinary(f"RETR {server_path}{self.file_name}", server_file.write)
-            # if data is None or data == "{}":
-            #     settings.set_default_settings()
-            #     print("Done.")
-            #     return
         print("Done.")
         with open(f"data/{self.file_name}", "rb") as file:
             return dict(jsonpickle.decode(file.read()))

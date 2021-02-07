@@ -141,7 +141,7 @@ class Service:
         self.load_accounts()
 
         if self._settings is None:
-            self._transactions = {}
+            self.set_default_settings()
 
         if self._transactions is None:
             self._transactions = {}
