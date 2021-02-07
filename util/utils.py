@@ -2,7 +2,7 @@ import numpy
 from datetime import datetime
 
 
-def fname(number):
+def fnum(number):
     """Converts argument to float and formats it's decimal precision to 2
     :return:float with dec. precision = 2
     """

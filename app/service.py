@@ -1,21 +1,40 @@
 import ftplib
 import util.settings as settings
 import util.serializer as serializer
-
-# app util/helper module
 from account import Account
 from transaction import AddTransaction, PayTransaction, TransactionType
+
 
 ftp = ftplib.FTP(settings.ftp_host, settings.ftp_username, settings.ftp_password)
 
 
 class Service:
     def __init__(self):
-        self.settings = settings.app_settings
+        self._accounts = {}
+        self._transactions = {}
+        self._settings = settings.app_settings
 
-    def ftp_retrieve(self, path, filename, data_type):
-        with open(f"data/{filename}", "wb") as server_file:
-            data = ftp.retrbinary(f"RETR {path}/{filename}", server_file.write)
+        self._settings_serializer = serializer.ServerSerializer("settings")
+        self._acc_serializer = serializer.ServerSerializer("accounts")
+        self._trans_serializer = serializer.ServerSerializer("transactions")
+
+        self.load_data()
+        self.currency = self.get_currency()
+
+    def login(self):
+        pass
+
+    def new_transaction(self, acc, amount, transaction_type):
+        with transaction(acc, amount, transaction_type) as trans:
+            self._transactions[f'{trans.get_id()}'] = trans
+        self.save_transactions()
+        self.save_settings()
+
+    def new_account(self, name, balance):
+        with account(name, balance) as acc:
+            self._accounts[acc.name] = acc
+        self.save_accounts()
+        self.save_settings()
 
     def addtrans(self, _account, amount):
         self.add_acc_bal(_account, amount)
@@ -25,11 +44,11 @@ class Service:
         self.sub_acc_bal(_account, amount)
         return PayTransaction(self.next_trans_id(), _account, amount)
 
-    def add_account(self):
-        return self
+    def ftp_retr(self, path, filename, file):
+        return ftp.retrbinary(f"RETR {path}/{filename}", file.write)
 
-    def account_info(self):
-        return self
+    def ftp_stor(self, path, filename):
+        ftp.storbinary(f"STOR /{path}", filename)
 
     def add_acc_bal(self, _account, amount):
         _account.add_balance(amount)
@@ -46,11 +65,11 @@ class Service:
 
     def next_trans_id(self):
         _trans_uid = self.get_trans_uid()
-        self.settings.set_setting("trans_uid", _trans_uid + 1)
+        self._settings.set_setting("trans_uid", _trans_uid + 1)
         return int(_trans_uid)
 
     def set_default_settings(self):
-        self.settings.load(self.from_server())
+        self._settings.load(self.from_server())
 
     def from_server(self):
         import requests
@@ -59,20 +78,80 @@ class Service:
         data = requests.get(f"{settings.full_data_url}{settings.default_settings}").text
         return dict(jsonpickle.decode(data))
 
+    def transactions(self):
+        return self._transactions
+
+    def get_acc_transactions(self, acc):
+        transactions = list()
+        for t in self.transactions().values():
+            if t.account_id == acc.id:
+                transactions.append(t)
+        return tuple(transactions)
+
+    def accounts(self):
+        return self._accounts
+
+    def get_account(self, accountName):
+        return self.accounts().get(accountName)
+
+    def settings(self):
+        return self._settings
+
     def get_acc_uid(self):
-        return self.settings.get_setting("acc_uid")
+        return self._settings.get_setting("acc_uid")
 
     def get_trans_uid(self):
-        return self.settings.get_setting("trans_uid")
+        return self._settings.get_setting("trans_uid")
 
     def get_currency(self):
-        return self.settings.get_setting("currency")
+        return self._settings.get_setting("currency")
 
     def get_max_balance(self):
-        return self.settings.get_setting("max_balance")
+        return self._settings.get_setting("max_balance")
 
     def get_timeout(self, ):
-        return self.settings.get_setting("timeout")
+        return self._settings.get_setting("timeout")
+
+    def save_data(self):
+        self.save_settings()
+        self.save_transactions()
+        self.save_accounts()
+
+    def save_settings(self):
+        self._settings_serializer.save(self._settings())
+
+    def save_accounts(self):
+        self._acc_serializer.save(self._accounts)
+
+    def save_transactions(self):
+        self._trans_serializer.save(self._transactions)
+
+    def load_settings(self):
+        self._settings.load(self._settings_serializer.load())
+
+    def load_transactions(self):
+        self._transactions = self._trans_serializer.load()
+
+    def load_accounts(self):
+        self._accounts = self._acc_serializer.load()
+
+    def load_data(self):
+        self.load_settings()
+        self.load_transactions()
+        self.load_accounts()
+
+        if self._settings is None:
+            self._transactions = {}
+
+        if self._transactions is None:
+            self._transactions = {}
+
+        if self._accounts is None:
+            self._accounts = {}
+
+    def quit(self):
+        self.save_data()
+        quit()
 
 
 service = Service()

@@ -1,6 +1,3 @@
-import util.settings as settings
-
-
 class Account:
     def __init__(self, uid, name='Client', account_balance=0):
         self.id = uid
