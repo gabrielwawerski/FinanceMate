@@ -35,19 +35,19 @@ class Transaction:
     def _sign(self):
         return "-" if self.transaction_type is TransactionType.PAY.value else "+"
 
-    def get_id(self):
+    def get_id(self) -> int:
         return self.id
 
     def get_info(self):
         print(f"{self.id}: {self.transaction_type}")
-        print(f"Account: {self.account_id}\nAmount:{self.amount}{settings.get_currency()}\n{self.timestamp}")
+        print(f"Account: {self.account_id}\nAmount:{self.amount}{service.service.get_currency()}\n{self.timestamp}")
 
 
 class PayTransaction(Transaction):
-    def __init__(self, uid, account, amount):
+    def __init__(self, uid: int, account, amount: float):
         super().__init__(uid, account, amount, TransactionType.PAY)
 
 
 class AddTransaction(Transaction):
-    def __init__(self, uid, account, amount):
+    def __init__(self, uid: int, account, amount: float):
         super().__init__(uid, account, amount, TransactionType.ADD)

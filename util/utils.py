@@ -2,20 +2,21 @@ import numpy
 from datetime import datetime
 
 
-def fnum(number):
+def fnum(number: int) -> str:
     """Converts argument to float and formats it's decimal precision to 2
     :return:float with dec. precision = 2
     """
     return numpy.format_float_positional(float(number), 2, trim="-")
 
 
-def timestamp():
+def timestamp() -> str:
+    from datetime import datetime
     dt = datetime.now()
     hour, minute, second, day, month = _format_date_time(dt.hour, dt.minute, dt.second, dt.day, dt.month)
     return f"{hour}:{minute}:{second} {day}.{month}.{dt.year}"
 
 
-def _format_date_time(*data):
+def _format_date_time(*data: int) -> tuple:
     fdata = list()
     for d in data:
         if d <= 9:

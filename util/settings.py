@@ -2,14 +2,18 @@ server_url = "https://gabrielwawerski.github.io/FinanceMate/"
 data_dir = "data/"
 full_data_url = server_url + data_dir
 default_settings = "settings_default.json"
-full_data_url = server_url + data_dir
+
+
+ftp_hostname = "ftp.epizy.com"
+ftp_username = "epiz_27836100"
+ftp_password = "agipcompany"
 
 
 class Settings:
     def __init__(self):
         self.settings = {}
 
-    def get_setting(self, name):
+    def get_setting(self, name: str) -> str:
         print(f"getting {name}")
         return self.settings[name]
 
@@ -23,14 +27,14 @@ class Settings:
     def add_setting(self, setting, value):
         self.settings[setting] = value
 
-    def _add_settings(self, **args):
+    def _add_settings(self, **args: tuple):
         for k, v in args.items():
             self.settings[k] = v
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> dict:
         return self.settings
 
-    def load(self, settings):
+    def load(self, settings: dict):
         self.settings = settings
 
 

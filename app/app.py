@@ -3,7 +3,7 @@ import app.service as service
 from util.utils import fnum
 
 
-# TODO: Account Viewer: class that holds one account at a time. Can perform operations on it (adding transactions etc.)
+# TODO: Account Viewer that holds one account at a time. Can perform operations on it (adding transactions etc.)
 #       Helper class so App's methods dealing with accounts doesn't need individual accounts.
 # TODO: move methods operating on accounts from here? to account viewer?
 # TODO: login
@@ -11,6 +11,11 @@ from util.utils import fnum
 # TODO: remove account
 class App:
     """
+    v1.0
+        - Add function annotations
+        - Cleanup, minor fixes
+        - Add ftp module
+
     v0.3.2:
         - First attempt at loosening module coupling (imports)
         - Add service module, move logic there
@@ -36,7 +41,7 @@ class App:
 
     def __init__(self):
         self.service = service.service
-        self.version = "0.3.2"
+        self.version = "1.0"
         self._run = True
         self.currency = self.service.currency
 
@@ -163,7 +168,7 @@ def subdiv():
     divider(19)
 
 
-def title(atitle, length=30):
+def title(atitle: str, length: int = 30):
     divider(length)
     print(atitle)
     divider(length)
