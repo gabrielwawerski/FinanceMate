@@ -4,9 +4,9 @@ full_data_url = server_url + data_dir
 default_settings = "settings_default.json"
 
 
-ftp_hostname = "ftp.epizy.com"
-ftp_username = "epiz_27836100"
-ftp_password = "agipcompany"
+ftp_hostname = ""
+ftp_username = ""
+ftp_password = ""
 
 
 class Settings:
