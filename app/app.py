@@ -1,6 +1,6 @@
 from enum import Enum
 import app.service as service
-from util.utils import fnum
+from util.utils import fnum, timestamp, get_month_name
 
 
 # TODO: Account Viewer that holds one account at a time. Can perform operations on it (adding transactions etc.)
@@ -9,6 +9,7 @@ from util.utils import fnum
 # TODO: login
 # TODO: admin panel
 # TODO: remove account
+# TODO: create shopping list
 class App:
     """
     v1.0
@@ -46,13 +47,20 @@ class App:
         self.currency = self.service.currency
 
     def run(self):
+        def print_info():
+            div()
+            print(f"FinanceMate v{self.version}")
+            div()
+            print(timestamp())
+            print(f"Current month: {get_month_name()}")
+
         def print_main_menu():
             div()
             for option in MainMenu:
                 print(f"{option.value}. {str(option)}")
 
         account = self.service.get_account('Gabriel Wawerski')
-        print(f"FinanceMate v{self.version}")
+        print_info()
         print_main_menu()
         selection = int(inpt())
         _service = self.service
@@ -68,6 +76,9 @@ class App:
                 print("How much did you deposit?")
                 amount = finpt()
                 _service.new_transaction(account, amount, "add")
+
+            elif selection is MainMenu.MONTHLY_SPENDINGS.value:
+                print("")
 
             elif selection is MainMenu.ACCOUNT_INFO.value:
                 self.account_info(account)
@@ -144,12 +155,13 @@ class MenuEnum(Enum):
 class MainMenu(MenuEnum):
     ADD_TRANSACTION = 1
     ADD_BALANCE = 2
-    ACCOUNT_INFO = 3
-    LIST_TRANSACTIONS = 4
-    LIST_ACCOUNTS = 5
-    ADD_ACCOUNT = 6
-    DEFAULT_SETTINGS = 7
-    EXIT = 0
+    MONTHLY_SPENDINGS = 3
+    ACCOUNT_INFO = 4
+    LIST_TRANSACTIONS = 5
+    LIST_ACCOUNTS = 6
+    ADD_ACCOUNT = 7
+    DEFAULT_SETTINGS = 8
+    EXIT = 9
 
 
 class Login(MenuEnum):
