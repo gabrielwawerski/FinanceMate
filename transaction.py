@@ -14,7 +14,12 @@ class TransactionType(Enum):
 
 
 class Transaction:
-    def __init__(self, uid, account, amount, transaction_type, name="Transaction name", description="Short transaction description"):
+    def __init__(self, uid,
+                 account,
+                 amount,
+                 transaction_type,
+                 name="Transaction name",
+                 description="Short transaction description"):
         self.id = uid
         self.transaction_type = transaction_type.value
         self.name = name
@@ -32,7 +37,7 @@ class Transaction:
 
         print(f"{account.name}'s Transaction no. {self.id}: {self._sign()}{amount}{service.service.get_currency()}")
 
-    def _sign(self):
+    def _sign(self) -> str:
         return "-" if self.transaction_type is TransactionType.PAY.value else "+"
 
     def get_id(self) -> int:

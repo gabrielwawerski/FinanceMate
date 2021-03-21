@@ -186,9 +186,9 @@ def title(atitle: str, length: int = 30):
     divider(length)
 
 
-def inpt():
+def inpt() -> str:
     return input("> ")
 
 
-def finpt():
+def finpt() -> float:
     return float(inpt())

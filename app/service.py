@@ -32,11 +32,11 @@ class Service:
         self.save_accounts()
         self.save_settings()
 
-    def addtrans(self, account: Account, amount: float):
+    def addtrans(self, account: Account, amount: float) -> AddTransaction:
         self.add_acc_bal(account, amount)
         return AddTransaction(self.next_trans_id(), account, amount)
 
-    def paytrans(self, account: Account, amount: float):
+    def paytrans(self, account: Account, amount: float) -> PayTransaction:
         self.sub_acc_bal(account, amount)
         return PayTransaction(self.next_trans_id(), account, amount)
 
@@ -48,10 +48,10 @@ class Service:
         account.sub_balance(amount)
         return self
 
-    def next_acc_id(self):
+    def next_acc_id(self) -> int:
         _acc_uid = self.get_acc_uid()
         settings.app_settings.set_setting("acc_uid", _acc_uid + 1)
-        return _acc_uid
+        return int(_acc_uid)
 
     def next_trans_id(self) -> int:
         _trans_uid = self.get_trans_uid()
@@ -65,17 +65,17 @@ class Service:
     def transactions(self) -> dict:
         return self._transactions
 
-    def get_acc_transactions(self, acc: Account):
+    def get_acc_transactions(self, acc: Account) -> tuple:
         transactions = list()
         for t in self.transactions().values():
             if t.account_id == acc.id:
                 transactions.append(t)
         return tuple(transactions)
 
-    def accounts(self):
+    def accounts(self) -> dict:
         return self._accounts
 
-    def get_account(self, accountName: str):
+    def get_account(self, accountName: str) -> Account:
         return self.accounts().get(accountName)
 
     def settings(self) -> dict:
@@ -146,7 +146,7 @@ class account:
         self.name = name
         self.balance = balance
 
-    def __enter__(self):
+    def __enter__(self) -> Account:
         return Account(service.next_acc_id(), self.name, self.balance)
 
     def __exit__(self, exc_type, exc_val, exc_tb):

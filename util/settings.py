@@ -4,9 +4,9 @@ full_data_url = server_url + data_dir
 default_settings = "settings_default.json"
 
 
-ftp_hostname = "ftp.epizy.com"
-ftp_username = "epiz_27836100"
-ftp_password = "agipcompany"
+ftp_hostname = ""
+ftp_username = ""
+ftp_password = ""
 
 
 class Settings:
@@ -17,14 +17,14 @@ class Settings:
         print(f"getting {name}")
         return self.settings[name]
 
-    def set_setting(self, setting, value):
+    def set_setting(self, setting: str, value: str or int):
         print(f"[Settings Change] {setting}: {self.get_setting(setting)} -> {value}")
         if setting in self.settings:
             self.settings[setting] = value
         else:
             print(f"No such setting: {setting}")
 
-    def add_setting(self, setting, value):
+    def add_setting(self, setting: str, value: str or int):
         self.settings[setting] = value
 
     def _add_settings(self, **args: tuple):

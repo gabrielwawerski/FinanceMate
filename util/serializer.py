@@ -18,7 +18,7 @@ class DataType(Enum):
     TRANSACTIONS = 2
     SETTINGS = 3
 
-    def __str__(self, simple_name: str = False):
+    def __str__(self, simple_name: str = False) -> str:
         if simple_name:
             return self.name.lower()
         else:
@@ -72,7 +72,7 @@ def json_loads(data):
     return json.load(data)
 
 
-def isfile(file_name: str):
+def isfile(file_name: str) -> bool:
     return os.path.isfile(file_name)
 
 
